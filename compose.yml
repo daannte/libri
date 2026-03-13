@@ -1,0 +1,54 @@
+services:
+  db:
+    image: mariadb
+    container_name: libri-db
+    volumes:
+      - db:/var/lib/mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: libri
+      MYSQL_DATABASE: libri
+      MYSQL_USER: libri
+      MYSQL_PASSWORD: libri
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-plibri" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    container_name: libri-backend
+    image: ghcr.io/astral-sh/uv:python3.14-alpine
+    restart: unless-stopped
+    working_dir: /backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: mysql://libri:libri@mariadb:3306/libri
+      ALLOWED_ORIGINS: http://localhost:5173
+    volumes:
+      - ./backend:/backend
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "uv sync --locked && uv run litestar run --reload --host 0.0.0.0"
+
+  frontend:
+    container_name: libri-frontend
+    image: oven/bun:1-alpine
+    restart: unless-stopped
+    working_dir: /frontend
+    volumes:
+      - ./frontend:/frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    environment:
+      NODE_ENV: development
+    command: sh -c "bun install && bun run dev --open --host 0.0.0.0 --no-open"
+
+volumes:
+  db:
