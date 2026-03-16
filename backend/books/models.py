@@ -1,6 +1,10 @@
 from django.db import models
 
 
+def book_directory_path(instance, filename):
+    return f"{instance.id}/{filename}"
+
+
 class Author(models.Model):
     name = models.CharField(max_length=255)
     bio = models.TextField(blank=True, null=True)
@@ -15,6 +19,9 @@ class Book(models.Model):
     title = models.CharField(max_length=255)
     authors = models.ManyToManyField(Author)
     description = models.TextField(blank=True, default="")
+
+    epub_file = models.FileField(upload_to=book_directory_path, blank=True)
+    cover_image = models.ImageField(upload_to=book_directory_path, blank=True)
 
     asin = models.CharField(max_length=20, blank=True, default="")
     isbn = models.CharField(max_length=20, blank=True, default="")

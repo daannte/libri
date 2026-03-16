@@ -1,4 +1,4 @@
-from library.serializers import BookSerializer
+from books.serializers import BookSerializer
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from metadata.providers import PROVIDERS

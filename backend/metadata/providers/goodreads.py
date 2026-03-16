@@ -1,5 +1,5 @@
 from datetime import datetime
-from library.dataclasses import BookData, Details, Author
+from books.dataclasses import BookData, Details, Author
 import json
 from bs4 import BeautifulSoup
 import requests

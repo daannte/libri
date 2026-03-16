@@ -1,4 +1,4 @@
-from library.models import Book
+from books.models import Book
 from django.db import models
 
 

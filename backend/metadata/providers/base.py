@@ -1,4 +1,4 @@
-from library.dataclasses import BookData
+from books.dataclasses import BookData
 from abc import ABC, abstractmethod
 
 

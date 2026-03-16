@@ -1,6 +1,6 @@
 from rest_framework.response import Response
-from library.models import Book
-from library.serializers import BookUploadSerializer, BookSerializer
+from books.models import Book
+from books.serializers import BookUploadSerializer, BookSerializer
 from rest_framework import viewsets, status
 
 

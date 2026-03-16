@@ -29,7 +29,7 @@ services:
       DATABASE_URL: mysql://shiori:shiori@db:3306/shiori
     volumes:
       - ./backend:/backend
-      - ./dev/library:/library
+      - ./dev/books:/books
       - ./dev/data:/data
     depends_on:
       db:
