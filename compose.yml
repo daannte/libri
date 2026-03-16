@@ -30,12 +30,14 @@ services:
       ALLOWED_ORIGINS: http://localhost:5173
     volumes:
       - ./backend:/backend
+      - ./dev/library:/library
+      - ./dev/data:/data
     depends_on:
       db:
         condition: service_healthy
     command: >
       sh -c "
-      apk add --no-cache pkgconf gcc mariadb-dev musl-dev &&
+      apk add --no-cache pkgconf gcc mariadb-dev mariadb-client musl-dev &&
       uv sync --locked &&
       uv run manage.py migrate &&
       uv run manage.py runserver 0.0.0.0:8000
