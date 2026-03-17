@@ -2,7 +2,7 @@ import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async ({ fetch }) => {
   try {
-    const res = await fetch('/api/books');
+    const res = await fetch('/api/v1/books');
 
     if (!res.ok) {
       throw new Error(`HTTP error: ${res.status}`)

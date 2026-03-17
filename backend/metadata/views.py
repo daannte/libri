@@ -1,3 +1,4 @@
+from http import HTTPMethod
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from metadata.providers import PROVIDERS
@@ -12,11 +13,11 @@ class MetadataView(viewsets.GenericViewSet):
 
     @action(
         detail=False,
-        methods=["post"],
+        methods=[HTTPMethod.GET],
         serializer_class=MetadataSearchSerializer,
     )
     def search(self, request):
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
 
         data = serializer.validated_data
