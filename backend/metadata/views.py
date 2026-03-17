@@ -1,4 +1,3 @@
-from books.serializers import BookSerializer
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from metadata.providers import PROVIDERS
@@ -29,4 +28,4 @@ class MetadataView(viewsets.GenericViewSet):
         if book_data is None:
             raise NotFound(f"No book found for external ID {external_id} from {source}")
 
-        return Response(None, status=status.HTTP_200_OK)
+        return Response(book_data, status=status.HTTP_200_OK)

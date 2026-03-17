@@ -13,7 +13,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 
 
 class BookSerializer(serializers.ModelSerializer):
-    authors = AuthorSerializer(many=True)
+    authors = AuthorSerializer(many=True, read_only=True)
     epub_file_url = serializers.SerializerMethodField()
     cover_image_url = serializers.SerializerMethodField()
 
@@ -38,6 +38,7 @@ class BookSerializer(serializers.ModelSerializer):
             "type",
             "created_at",
         ]
+        read_only_fields = ["id"]
 
     def get_epub_file_url(self, obj):
         return obj.epub_file.url if obj.epub_file else None
@@ -46,15 +47,20 @@ class BookSerializer(serializers.ModelSerializer):
         return obj.cover_image.url if obj.cover_image else None
 
 
-class BookUploadSerializer(serializers.Serializer):
-    book = serializers.FileField(write_only=True)
+class BookCreateSerializer(serializers.ModelSerializer):
+    file = serializers.FileField(write_only=True)
+
+    class Meta:
+        model = Book
+        fields = ["file"]
 
     def create(self, validated_data):
-        uploaded_file = validated_data.pop("book")
+        uploaded_file = validated_data.pop("file")
+
         original_name = Path(uploaded_file.name).stem
         title = slugify(original_name) or "untitled"
 
         book = Book.objects.create(title=title)  # ty:ignore[unresolved-attribute]
-        book.epub_file.save("book.epub", uploaded_file, save=True)
+        book.epub_file.save(uploaded_file.name, uploaded_file, save=True)
 
         return book
