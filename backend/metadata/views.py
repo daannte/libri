@@ -29,28 +29,4 @@ class MetadataView(viewsets.GenericViewSet):
         if book_data is None:
             raise NotFound(f"No book found for external ID {external_id} from {source}")
 
-        book_json = {
-            "id": None,
-            "title": book_data.title,
-            "authors": [
-                {"id": None, "name": a.name, "bio": a.bio} for a in book_data.authors
-            ],
-            "description": book_data.description,
-            "asin": book_data.details.asin if book_data.details else None,
-            "isbn": book_data.details.isbn if book_data.details else None,
-            "isbn13": book_data.details.isbn13 if book_data.details else None,
-            "pages": book_data.details.pages if book_data.details else None,
-            "publication_time": book_data.details.publication_time
-            if book_data.details
-            else None,
-            "publisher": book_data.details.publisher if book_data.details else None,
-            "language": book_data.details.language if book_data.details else None,
-            "currently_reading": False,
-            "read": False,
-            "type": None,
-            "created_at": None,
-        }
-
-        serializer = BookSerializer(book_json)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(None, status=status.HTTP_200_OK)

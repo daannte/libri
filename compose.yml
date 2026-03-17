@@ -27,6 +27,7 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: mysql://shiori:shiori@db:3306/shiori
+      PYTHONUNBUFFERED: 1
     volumes:
       - ./backend:/backend
       - ./dev/books:/books

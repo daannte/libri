@@ -51,7 +51,6 @@ class BookUploadSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         uploaded_file = validated_data.pop("book")
-
         original_name = Path(uploaded_file.name).stem
         title = slugify(original_name) or "untitled"
 
