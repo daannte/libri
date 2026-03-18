@@ -1,9 +1,11 @@
 <script lang="ts">
-	import * as Empty from '$lib/components/ui/empty';
-	import { Button } from '$lib/components/ui/button';
-	import { Book } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { invalidate } from '$app/navigation';
+
+	import * as Empty from '$lib/components/ui/empty';
+	import { Button } from '$lib/components/ui/button';
+
+	import Book from '@lucide/svelte/icons/book';
 
 	let { data }: PageProps = $props();
 	let fileInput: HTMLInputElement;
@@ -31,8 +33,8 @@
 </script>
 
 <div class="p-6">
-	<Button variant="outline" onclick={() => fileInput.click()}>Upload Book</Button>
 	{#if data.books && data.books.length > 0}
+		<Button variant="outline" onclick={() => fileInput.click()}>Upload Book</Button>
 		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 			{#each data.books as book (book.id)}
 				<a href={`/books/${book.id}`}>

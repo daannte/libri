@@ -1,10 +1,16 @@
 <script lang="ts">
+	import type { PageProps } from './$types';
+
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { ArrowLeft, Database, Download } from '@lucide/svelte';
-	import type { PageProps } from './$types';
+
+	import Download from '@lucide/svelte/icons/download';
+	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+	import Database from '@lucide/svelte/icons/database';
+	import Trash2 from '@lucide/svelte/icons/trash-2';
+	import { goto } from '$app/navigation';
 
 	let { data }: PageProps = $props();
 
@@ -59,6 +65,15 @@
 		if (!res.ok) throw new Error('Failed to save metadata');
 		const updatedBook = await res.json();
 		data = updatedBook;
+	}
+
+	async function deleteBook() {
+		const res = await fetch(`/api/v1/books/${data.id}/`, {
+			method: 'DELETE'
+		});
+
+		if (!res.ok) throw new Error('Failed to delete book');
+		goto('/books');
 	}
 </script>
 
@@ -117,6 +132,10 @@
 
 				<Button aria-label="Download" variant="outline" size="icon">
 					<Download />
+				</Button>
+
+				<Button aria-label="Delete" variant="ghost" size="icon" onclick={deleteBook}>
+					<Trash2 />
 				</Button>
 			</div>
 
