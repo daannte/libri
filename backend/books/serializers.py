@@ -1,12 +1,13 @@
-from django.core.files.base import ContentFile
-import requests
-from metadata.models import MetadataSource, ExternalBookID
 from pathlib import Path
 
+import requests
+from django.core.files.base import ContentFile
+from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
 
 from books.models import Author, Book
+from metadata.models import ExternalBookID, MetadataSource
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -91,46 +92,52 @@ class EnrichBookSerializer(serializers.Serializer):
     external_id = serializers.CharField()
 
     def update(self, instance: Book, validated_data: dict):
-        for field in [
-            "title",
-            "description",
-            "asin",
-            "isbn",
-            "isbn13",
-            "pages",
-            "publication_time",
-            "publisher",
-            "language",
-        ]:
-            if field in validated_data:
-                setattr(instance, field, validated_data[field])
-        cover_url = validated_data.get("cover_image_url")
-        if cover_url:
-            try:
-                resp = requests.get(cover_url)
-                resp.raise_for_status()
+        with transaction.atomic():
+            for field in [
+                "title",
+                "description",
+                "asin",
+                "isbn",
+                "isbn13",
+                "pages",
+                "publication_time",
+                "publisher",
+                "language",
+            ]:
+                if field in validated_data:
+                    setattr(instance, field, validated_data[field])
 
-                instance.cover_image.save(  # ty:ignore[unresolved-attribute]
-                    "cover.jpg", ContentFile(resp.content), save=False
-                )
-            except Exception as e:
-                print(f"Failed to download cover image: {e}")
-        instance.save()
+            cover_url = validated_data.get("cover_image_url")
+            if cover_url:
+                try:
+                    resp = requests.get(cover_url)
+                    resp.raise_for_status()
+                    instance.cover_image.save(  # ty:ignore[unresolved-attribute]
+                        "cover.jpg", ContentFile(resp.content), save=False
+                    )
+                except Exception as e:
+                    print(f"Failed to download cover image: {e}")
 
-        authors_data = validated_data.get("authors", [])
-        if authors_data:
-            instance.authors.clear()  # ty:ignore[unresolved-attribute]
-            for author_info in authors_data:
-                name = author_info.get("name")
-                if not name:
-                    continue
-                author, _ = Author.objects.get_or_create(name=name)  # ty:ignore[unresolved-attribute]
-                instance.authors.add(author)  # ty:ignore[unresolved-attribute]
+            instance.save()
 
-        ExternalBookID.objects.get_or_create(  # ty:ignore[unresolved-attribute]
-            book=instance,
-            source=validated_data["external_source"],
-            external_id=validated_data["external_id"],
-        )
+            authors_data = validated_data.get("authors", [])
+            if authors_data:
+                instance.authors.clear()  # ty:ignore[unresolved-attribute]
+                for author_info in authors_data:
+                    name = author_info.get("name")
+                    if not name:
+                        continue
+                    bio = author_info.get("bio", "")
+                    author, _ = Author.objects.get_or_create(name=name)  # ty:ignore[unresolved-attribute]
+                    if bio and author.bio != bio:
+                        author.bio = bio
+                        author.save()
+                    instance.authors.add(author)  # ty:ignore[unresolved-attribute]
+
+            ExternalBookID.objects.get_or_create(  # ty:ignore[unresolved-attribute]
+                book=instance,
+                source=validated_data["external_source"],
+                external_id=validated_data["external_id"],
+            )
 
         return instance

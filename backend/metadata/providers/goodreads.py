@@ -8,7 +8,6 @@ from metadata.serializers import MetadataBookSerializer
 
 class GoodreadsProvider(MetadataProvider):
     name = "Goodreads"
-
     URL: str = "https://www.goodreads.com/book/show/"
 
     def search(self, title: str) -> dict | None:
@@ -26,9 +25,11 @@ class GoodreadsProvider(MetadataProvider):
         if not book_info:
             return None
 
+        print(json.dumps(apollo_state, indent=4))
+
         book_dict = {
             "title": book_info.get("title", ""),
-            "authors": self._extract_authors(apollo_state),
+            "authors": self._extract_authors(apollo_state, book_info),
             "description": book_info.get("description", ""),
             "cover_image_url": book_info.get("imageUrl"),
             "asin": None,
@@ -57,27 +58,68 @@ class GoodreadsProvider(MetadataProvider):
             )
 
         serializer = MetadataBookSerializer(book_dict)
+        print(json.dumps(serializer.data, indent=4))
         return serializer.data
 
     def _get_book_info(self, apollo_state: dict[str, dict]) -> dict | None:
         for key, val in apollo_state.items():
-            if "Book:kca" in key:
+            if key.lower().startswith("book:"):
                 return val
         return None
 
-    def _get_author_keys(self, apollo_state: dict[str, dict]) -> list[str]:
-        return [key for key in apollo_state if "Contributor:kca" in key]
+    def _get_primary_author_ref(self, book_info: dict) -> str | None:
+        edge = book_info.get("primaryContributorEdge")
+        if not edge:
+            return None
+        node = edge.get("node")
+        if not node:
+            return None
+        return node.get("__ref")
 
-    def _extract_authors(self, apollo_state: dict[str, dict]) -> list[dict]:
+    def _resolve_author_key(self, ref: str | None, apollo_state: dict) -> str | None:
+        if not ref:
+            return None
+        if ref in apollo_state:
+            return ref
+        return None
+
+    def _extract_authors(
+        self, apollo_state: dict[str, dict], book_info: dict
+    ) -> list[dict]:
         authors = []
-        for key in self._get_author_keys(apollo_state):
-            author_details = apollo_state.get(key)
-            if not author_details or author_details.get("name") is None:
+
+        primary_ref = self._get_primary_author_ref(book_info)
+        primary_key = self._resolve_author_key(primary_ref, apollo_state)
+
+        if primary_key:
+            author_details = apollo_state.get(primary_key)
+            if author_details:
+                authors.append(
+                    {
+                        "name": author_details.get("name", ""),
+                        "bio": author_details.get("description") or "",
+                    }
+                )
+
+        for edge in book_info.get("secondaryContributorEdges", []):
+            if edge.get("role", "").lower() != "author":
                 continue
+
+            node_ref = edge.get("node", {}).get("__ref")
+            key = self._resolve_author_key(node_ref, apollo_state)
+            if not key:
+                continue
+
+            author_details = apollo_state.get(key)
+            if not author_details or not author_details.get("name"):
+                continue
+
             authors.append(
                 {
                     "name": author_details.get("name", ""),
                     "bio": author_details.get("description") or "",
+                    "is_primary": False,
                 }
             )
+
         return authors
