@@ -1,14 +1,15 @@
-use axum::Router;
+use std::sync::Arc;
 
-use crate::config::state::AppState;
+use axum::Router;
+use shiori_core::ShioriCore;
 
 mod config;
-mod db;
 mod routes;
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
-    let state = AppState::new();
+    let core = ShioriCore::new();
+    let state = Arc::new(core.get_app());
 
     let app = Router::new()
         .merge(routes::mount())
