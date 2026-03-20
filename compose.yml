@@ -1,7 +1,7 @@
 services:
   backend:
     container_name: shiori-backend
-    image: rust:1.94-alpine
+    image: rust:1.94
     restart: unless-stopped
     working_dir: /backend
     ports:
