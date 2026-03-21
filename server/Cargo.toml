@@ -4,15 +4,18 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+axum_typed_multipart = { workspace = true }
 axum = { workspace = true }
+chrono = { workspace = true }
 deadpool-diesel = { workspace = true }
 diesel-async = { workspace = true }
 diesel = { workspace = true }
 serde_json = { workspace = true }
+tempfile = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
-utoipa = { workspace = true }
-utoipa-axum = { workspace = true }
-utoipa-redoc = { workspace = true }
+utoipa = { version = "5", features = ["chrono"] }
+utoipa-axum = "0.2"
+utoipa-redoc = { version = "6", features = ["axum"] }
 
 shiori_core = { path = "../core" }

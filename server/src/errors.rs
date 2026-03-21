@@ -3,7 +3,6 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
-use diesel::result::Error::NotFound;
 use thiserror::Error;
 
 pub type APIResult<T> = Result<T, APIError>;
@@ -27,7 +26,7 @@ impl APIError {
             APIError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             APIError::NotImplemented => StatusCode::NOT_IMPLEMENTED,
             APIError::BadRequest(_) => StatusCode::BAD_REQUEST,
-            APIError::DbError(NotFound) => StatusCode::NOT_FOUND,
+            APIError::DbError(diesel::result::Error::NotFound) => StatusCode::NOT_FOUND,
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

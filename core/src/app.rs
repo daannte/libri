@@ -8,11 +8,14 @@ use diesel_async::{
 
 use crate::db;
 
-type DeadpoolResult = Result<Object<SyncConnectionWrapper<SqliteConnection>>, PoolError>;
+type WrapperConn = SyncConnectionWrapper<SqliteConnection>;
+pub type SqliteConn = Object<WrapperConn>;
+
+type DeadpoolResult = Result<SqliteConn, PoolError>;
 
 #[derive(Clone)]
 pub struct App {
-    pub pool: Arc<Pool<SyncConnectionWrapper<SqliteConnection>>>,
+    pub pool: Arc<Pool<WrapperConn>>,
 }
 
 impl App {

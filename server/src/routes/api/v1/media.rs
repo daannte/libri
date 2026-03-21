@@ -1,3 +1,4 @@
+use crate::models::media::NewMedia;
 use crate::schema::media;
 use crate::{
     config::state::AppState,
@@ -10,18 +11,64 @@ use axum::{
     extract::{Path, State},
     routing::{get, post},
 };
+use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
+use tempfile::NamedTempFile;
+use utoipa::ToSchema;
 
 pub fn mount() -> Router<AppState> {
-    Router::new()
-        .route("/media", post(upload_media))
-        .nest("/{id}", Router::new().route("/", get(get_media)))
+    Router::new().nest(
+        "/media",
+        Router::new()
+            .route("/", post(upload_media))
+            .route("/{id}", get(get_media)),
+    )
 }
 
-#[utoipa::path(post, path = "/api/v1/media", tag = "media")]
-async fn upload_media(State(app): State<AppState>) -> APIResult<Json<()>> {
-    let _conn = app.db().await?;
+#[allow(unused)]
+#[derive(TryFromMultipart, ToSchema)]
+struct UploadMediaRequest {
+    #[schema(value_type = Vec<Object>)]
+    files: Vec<FieldData<NamedTempFile>>,
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/v1/media",
+    tag = "media",
+    request_body(
+        content = UploadMediaRequest,
+        description = "Media file",
+        content_type = "multipart/form-data"
+    ),
+    responses(
+        (status = 200, description = "Successfully added media"),
+        (status = 400, description = "Invalid media file"),
+        (status = 500, description = "Internal server error")
+    )
+)]
+async fn upload_media(
+    State(app): State<AppState>,
+    TypedMultipart(files): TypedMultipart<UploadMediaRequest>,
+) -> APIResult<Json<()>> {
+    let mut conn = app.db().await?;
+
+    for f in files.files {
+        let file_name = f.metadata.file_name.as_deref().ok_or(APIError::BadRequest(
+            "Uploaded media must have filenames.".to_string(),
+        ))?;
+        println!("Found {}", file_name);
+
+        let new_media = NewMedia {
+            name: file_name,
+            size: 0,
+            path: "/",
+            extension: "epub",
+        };
+
+        new_media.insert(&mut conn).await?;
+    }
 
     Err(APIError::NotImplemented)
 }
