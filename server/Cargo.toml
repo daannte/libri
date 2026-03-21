@@ -6,8 +6,13 @@ edition = "2024"
 [dependencies]
 axum = { workspace = true }
 deadpool-diesel = { workspace = true }
+diesel-async = { workspace = true }
 diesel = { workspace = true }
+serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
+utoipa = { workspace = true }
+utoipa-axum = { workspace = true }
+utoipa-redoc = { workspace = true }
 
 shiori_core = { path = "../core" }

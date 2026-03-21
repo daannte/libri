@@ -2,3 +2,4 @@ dev/
 *.epub
 *.db
 target/
+.env

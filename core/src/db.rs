@@ -1,9 +1,19 @@
-use deadpool_diesel::sqlite::{Manager, Pool};
+use std::env;
 
-pub fn create_pool() -> Pool {
-    let database_url = format!("file://{}/dev.db", env!("CARGO_MANIFEST_DIR"));
+use diesel::SqliteConnection;
+use diesel_async::{
+    pooled_connection::{AsyncDieselConnectionManager, deadpool::Pool},
+    sync_connection_wrapper::SyncConnectionWrapper,
+};
+use dotenvy::dotenv;
 
-    let manager = Manager::new(database_url, deadpool_diesel::Runtime::Tokio1);
+pub fn create_pool() -> Pool<SyncConnectionWrapper<SqliteConnection>> {
+    dotenv().ok();
 
-    Pool::builder(manager).build().unwrap()
+    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let manager = AsyncDieselConnectionManager::new(db_url);
+
+    let pool = Pool::builder(manager).build().unwrap();
+
+    pool
 }
