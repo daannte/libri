@@ -4,9 +4,10 @@ use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use utoipa::ToSchema;
 
 use crate::schema::media;
+use serde::Serialize;
 
 /// The model representing a row in the `media` database table.
-#[derive(Debug, HasQuery, ToSchema)]
+#[derive(Debug, HasQuery, ToSchema, Serialize)]
 #[diesel(table_name = crate::schema::media)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Media {
@@ -15,7 +16,7 @@ pub struct Media {
     /// Name of the media file, excluding extension.
     pub name: String,
     /// Size of the media file in bytes.
-    pub size: i32,
+    pub size: i64,
     /// File system path where the media is stored.
     pub path: String,
     /// The file extension of the media.
@@ -30,7 +31,7 @@ pub struct Media {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewMedia<'a> {
     pub name: &'a str,
-    pub size: i32,
+    pub size: i64,
     pub path: &'a str,
     pub extension: &'a str,
 }

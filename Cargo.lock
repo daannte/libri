@@ -273,6 +273,7 @@ dependencies = [
  "iana-time-zone",
  "js-sys",
  "num-traits",
+ "serde",
  "wasm-bindgen",
  "windows-link",
 ]
@@ -1481,6 +1482,7 @@ dependencies = [
  "deadpool-diesel",
  "diesel",
  "diesel-async",
+ "serde",
  "serde_json",
  "shiori_core",
  "tempfile",

@@ -8,7 +8,11 @@ use super::api;
 
 #[derive(OpenApi)]
 #[openapi(
-    paths(api::v1::media::upload_media, api::v1::media::get_media),
+    paths(
+        api::v1::media::list_media,
+        api::v1::media::upload_media,
+        api::v1::media::get_media
+    ),
     info(title = "shiori", description = "TODO DESCRIPTION OF SHIORI",)
 )]
 struct ApiDoc;

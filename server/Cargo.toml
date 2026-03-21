@@ -10,6 +10,7 @@ chrono = { workspace = true }
 deadpool-diesel = { workspace = true }
 diesel-async = { workspace = true }
 diesel = { workspace = true }
+serde = { workspace = true }
 serde_json = { workspace = true }
 tempfile = { workspace = true }
 thiserror = { workspace = true }

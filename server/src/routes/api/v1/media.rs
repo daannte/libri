@@ -1,3 +1,6 @@
+use std::ffi::OsStr;
+use std::{env, path};
+
 use crate::models::media::NewMedia;
 use crate::schema::media;
 use crate::{
@@ -9,7 +12,7 @@ use axum::Router;
 use axum::{
     Json,
     extract::{Path, State},
-    routing::{get, post},
+    routing::get,
 };
 use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
 use diesel::prelude::*;
@@ -21,12 +24,25 @@ pub fn mount() -> Router<AppState> {
     Router::new().nest(
         "/media",
         Router::new()
-            .route("/", post(upload_media))
+            .route("/", get(list_media).post(upload_media))
             .route("/{id}", get(get_media)),
     )
 }
 
-#[allow(unused)]
+// TODO: Pagination
+#[utoipa::path(
+    get,
+    path = "/api/v1/media",
+    tag = "media",
+    responses(
+        (status = 200, description = "Successfully fetched media"),
+        (status = 500, description = "Internal server error")
+    )
+)]
+async fn list_media(State(_app): State<AppState>) -> APIResult<()> {
+    Err(APIError::NotImplemented)
+}
+
 #[derive(TryFromMultipart, ToSchema)]
 struct UploadMediaRequest {
     #[schema(value_type = Vec<Object>)]
@@ -43,34 +59,56 @@ struct UploadMediaRequest {
         content_type = "multipart/form-data"
     ),
     responses(
-        (status = 200, description = "Successfully added media"),
+        (status = 200, description = "Successfully added media", body = Vec<Media>),
         (status = 400, description = "Invalid media file"),
         (status = 500, description = "Internal server error")
     )
 )]
+// TODO: Refactor all this
 async fn upload_media(
     State(app): State<AppState>,
     TypedMultipart(files): TypedMultipart<UploadMediaRequest>,
-) -> APIResult<Json<()>> {
+) -> APIResult<Json<Vec<Media>>> {
     let mut conn = app.db().await?;
 
+    let mut uploaded = Vec::new();
+
+    let temp_file_dir = env::var("FILE_DIR").expect("FILE_DIR must be set");
     for f in files.files {
-        let file_name = f.metadata.file_name.as_deref().ok_or(APIError::BadRequest(
-            "Uploaded media must have filenames.".to_string(),
-        ))?;
-        println!("Found {}", file_name);
+        let file_name = f.metadata.file_name.as_deref().ok_or_else(|| {
+            APIError::BadRequest("Uploaded media must have a filename.".to_string())
+        })?;
+
+        let ext = path::Path::new(file_name)
+            .extension()
+            .and_then(OsStr::to_str)
+            .map(str::to_ascii_lowercase)
+            .ok_or_else(|| {
+                APIError::BadRequest("Uploaded media must have an extension.".to_string())
+            })?;
 
         let new_media = NewMedia {
             name: file_name,
-            size: 0,
-            path: "/",
-            extension: "epub",
+            size: f
+                .contents
+                .as_file()
+                .metadata()
+                .unwrap()
+                .len()
+                .try_into()
+                .unwrap_or_else(|_| {
+                    println!("Failed to conver to i64");
+                    0
+                }),
+            path: &format!("{}/{}", temp_file_dir, file_name),
+            extension: &ext,
         };
 
-        new_media.insert(&mut conn).await?;
+        let media = new_media.insert(&mut conn).await?;
+        uploaded.push(media);
     }
 
-    Err(APIError::NotImplemented)
+    Ok(Json(uploaded))
 }
 
 #[utoipa::path(
