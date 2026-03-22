@@ -3,6 +3,7 @@
 
 [print_schema]
 file = "crates/shiori_database/src/schema.rs"
+patch_file = "crates/shiori_database/src/schema.patch"
 custom_type_derives = ["diesel::query_builder::QueryId", "Clone"]
 with_docs = true
 
