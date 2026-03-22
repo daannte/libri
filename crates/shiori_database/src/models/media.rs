@@ -25,7 +25,7 @@ pub struct Media {
     pub created_at: DateTime<Utc>,
 }
 
-/// Represents a new media record insertable to the `media` table
+/// Represents a new media record insertable to the `media` table.
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::media)]
 #[diesel(check_for_backend(diesel::pg::Pg))]

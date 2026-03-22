@@ -1,12 +1,9 @@
 use std::ffi::OsStr;
 use std::{env, path};
 
-use crate::models::media::NewMedia;
-use crate::schema::media;
 use crate::{
     config::state::AppState,
     errors::{APIError, APIResult},
-    models::media::Media,
 };
 use axum::Router;
 use axum::{
@@ -17,6 +14,8 @@ use axum::{
 use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
+use shiori_database::models::media::{Media, NewMedia};
+use shiori_database::schema::media;
 use tempfile::NamedTempFile;
 use utoipa::ToSchema;
 

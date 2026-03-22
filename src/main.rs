@@ -6,9 +6,7 @@ use crate::routes::build_axum_router;
 
 mod config;
 mod errors;
-mod models;
 mod routes;
-mod schema;
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {

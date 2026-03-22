@@ -1,0 +1,11 @@
+[package]
+name = "shiori_core"
+edition = "2024"
+
+[dependencies]
+deadpool-diesel = { version = "0.6.1", features = ["postgres"] }
+diesel = { version = "2.3.7", features = ["chrono", "postgres"] }
+diesel-async = { version = "0.7.4", features = ["postgres", "deadpool"] }
+dotenvy = "0.15.7"
+reqwest = "0.13.2"
+scraper = "0.26.0"
