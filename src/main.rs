@@ -5,7 +5,7 @@ use shiori_core::ShioriCore;
 use crate::routes::build_axum_router;
 
 mod config;
-mod errors;
+pub mod errors;
 mod routes;
 
 #[tokio::main(flavor = "multi_thread")]

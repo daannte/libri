@@ -11,7 +11,8 @@ use super::api;
     paths(
         api::v1::media::list_media,
         api::v1::media::upload_media,
-        api::v1::media::get_media
+        api::v1::media::get_media,
+        api::v1::metadata::search_metadata
     ),
     info(title = "shiori", description = "TODO DESCRIPTION OF SHIORI",)
 )]

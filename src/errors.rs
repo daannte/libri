@@ -3,6 +3,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+use shiori_metadata::MetadataError;
 use thiserror::Error;
 
 pub type APIResult<T> = Result<T, APIError>;
@@ -35,6 +36,34 @@ impl APIError {
 impl From<diesel_async::pooled_connection::deadpool::PoolError> for APIError {
     fn from(error: diesel_async::pooled_connection::deadpool::PoolError) -> Self {
         APIError::InternalServerError(error.to_string())
+    }
+}
+
+impl From<MetadataError> for APIError {
+    fn from(error: MetadataError) -> Self {
+        match error {
+            MetadataError::Network(_) => {
+                APIError::InternalServerError("Network error contacting provider".into())
+            }
+
+            MetadataError::HtmlParse => {
+                APIError::InternalServerError("Failed to parse HTML from provider".into())
+            }
+
+            MetadataError::MissingScriptTag => APIError::InternalServerError(
+                "Provider response missing expected script tag".into(),
+            ),
+
+            MetadataError::JsonParse(_) => {
+                APIError::InternalServerError("Failed to parse JSON from provider".into())
+            }
+
+            MetadataError::MissingBookInfo => {
+                APIError::InternalServerError("Book info not found in provider data".into())
+            }
+
+            MetadataError::Other(msg) => APIError::InternalServerError(msg),
+        }
     }
 }
 

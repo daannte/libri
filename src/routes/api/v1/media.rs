@@ -43,7 +43,8 @@ async fn list_media(State(_app): State<AppState>) -> APIResult<()> {
 }
 
 #[derive(TryFromMultipart, ToSchema)]
-struct UploadMediaRequest {
+struct MediaRequest {
+    /// An array of files to upload.
     #[schema(value_type = Vec<Object>)]
     files: Vec<FieldData<NamedTempFile>>,
 }
@@ -53,8 +54,7 @@ struct UploadMediaRequest {
     path = "/api/v1/media",
     tag = "media",
     request_body(
-        content = UploadMediaRequest,
-        description = "Media file",
+        content = MediaRequest,
         content_type = "multipart/form-data"
     ),
     responses(
@@ -66,7 +66,7 @@ struct UploadMediaRequest {
 // TODO: Refactor all this
 async fn upload_media(
     State(app): State<AppState>,
-    TypedMultipart(files): TypedMultipart<UploadMediaRequest>,
+    TypedMultipart(files): TypedMultipart<MediaRequest>,
 ) -> APIResult<Json<Vec<Media>>> {
     let mut conn = app.db().await?;
 
@@ -123,7 +123,10 @@ async fn upload_media(
         (status = 500, description = "Internal server error")
     )
 )]
-async fn get_media(Path(media_id): Path<i32>, State(app): State<AppState>) -> APIResult<()> {
+async fn get_media(
+    Path(media_id): Path<i32>,
+    State(app): State<AppState>,
+) -> APIResult<Json<Media>> {
     let mut conn = app.db().await?;
 
     let media = Media::query()
@@ -131,7 +134,5 @@ async fn get_media(Path(media_id): Path<i32>, State(app): State<AppState>) -> AP
         .first::<Media>(&mut conn)
         .await?;
 
-    println!("{:?}", media);
-
-    Err(APIError::NotImplemented)
+    Ok(Json(media))
 }

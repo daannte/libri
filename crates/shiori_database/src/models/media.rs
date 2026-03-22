@@ -8,7 +8,7 @@ use serde::Serialize;
 
 /// The model representing a row in the `media` database table.
 #[derive(Debug, HasQuery, ToSchema, Serialize)]
-#[diesel(table_name = crate::schema::media)]
+#[diesel(table_name = media)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Media {
     /// Unique identifier for the media item.
@@ -27,7 +27,7 @@ pub struct Media {
 
 /// Represents a new media record insertable to the `media` table.
 #[derive(Insertable)]
-#[diesel(table_name = crate::schema::media)]
+#[diesel(table_name = media)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewMedia<'a> {
     pub name: &'a str,

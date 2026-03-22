@@ -2182,14 +2182,26 @@ dependencies = [
  "diesel-async",
  "serde",
  "serde_json",
+ "shiori_api_types",
  "shiori_core",
  "shiori_database",
+ "shiori_metadata",
  "tempfile",
  "thiserror 2.0.18",
  "tokio",
  "utoipa",
  "utoipa-axum",
  "utoipa-redoc",
+]
+
+[[package]]
+name = "shiori_api_types"
+version = "0.0.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "shiori_database",
+ "utoipa",
 ]
 
 [[package]]
@@ -2202,6 +2214,8 @@ dependencies = [
  "dotenvy",
  "reqwest",
  "scraper",
+ "serde_json",
+ "shiori_database",
 ]
 
 [[package]]
@@ -2213,6 +2227,18 @@ dependencies = [
  "diesel-async",
  "serde",
  "utoipa",
+]
+
+[[package]]
+name = "shiori_metadata"
+version = "0.0.0"
+dependencies = [
+ "reqwest",
+ "scraper",
+ "serde_json",
+ "shiori_api_types",
+ "shiori_database",
+ "thiserror 2.0.18",
 ]
 
 [[package]]

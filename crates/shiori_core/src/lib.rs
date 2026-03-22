@@ -1,7 +1,6 @@
 mod app;
 pub mod db;
 mod fs;
-mod metadata;
 
 pub use app::App;
 
