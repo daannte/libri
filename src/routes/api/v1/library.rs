@@ -6,16 +6,10 @@ use axum::{
     Json,
     extract::{Path, State},
 };
-use axum_typed_multipart::FieldData;
-use axum_typed_multipart::TryFromMultipart;
-use axum_typed_multipart::TypedMultipart;
+use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
 use serde::Deserialize;
-use shiori_api_types::EncodableLibrary;
-use shiori_api_types::EncodableMedia;
-use shiori_database::models::Library;
-use shiori_database::models::Media;
-use shiori_database::models::NewLibrary;
-use shiori_database::models::NewMedia;
+use shiori_api_types::{EncodableLibrary, EncodableMedia};
+use shiori_database::models::{Library, Media, NewLibrary, NewMedia};
 use tempfile::NamedTempFile;
 use utoipa::ToSchema;
 use utoipa_axum::{router::OpenApiRouter, routes};
@@ -45,7 +39,7 @@ pub fn mount() -> OpenApiRouter<AppState> {
 async fn list_libraries(State(app): State<AppState>) -> APIResult<Json<Vec<EncodableLibrary>>> {
     let mut conn = app.db().await?;
 
-    let libraries = Library::list_libraries(&mut conn)
+    let libraries = Library::all(&mut conn)
         .await?
         .into_iter()
         .map(Into::into)
@@ -86,12 +80,36 @@ async fn create_library(
 
     let mut conn = app.db().await?;
 
+    // NOTE: There has to be a better way to do this
+    let libraries = Library::all(&mut conn).await?;
+
+    let new_path = path::Path::new(&body.path);
+
+    for lib in libraries {
+        let lib_path = path::Path::new(&lib.path);
+
+        if new_path.starts_with(lib_path) {
+            return Err(APIError::BadRequest(format!(
+                "Library path '{}' is inside existing library '{}'",
+                new_path.display(),
+                lib.path
+            )));
+        }
+
+        if lib_path.starts_with(new_path) {
+            return Err(APIError::BadRequest(format!(
+                "Library path '{}' contains existing library '{}'",
+                new_path.display(),
+                lib.path
+            )));
+        }
+    }
+
     let new_library = NewLibrary {
         name: &body.name,
         path: &body.path,
     };
 
-    // TODO: Make sure the library isnt inside another library
     let library = new_library.insert(&mut conn).await?;
 
     // TODO: Make this atomic with the db insert? (if possible)
