@@ -28,6 +28,18 @@ pub struct Media {
     pub library_id: i32,
 }
 
+impl Media {
+    pub async fn find_by_library_id(
+        conn: &mut AsyncPgConnection,
+        library_id: i32,
+    ) -> QueryResult<Vec<Media>> {
+        Media::query()
+            .filter(media::library_id.eq(library_id))
+            .load(conn)
+            .await
+    }
+}
+
 /// Represents a new media record insertable to the `media` table.
 #[derive(Insertable)]
 #[diesel(table_name = media)]

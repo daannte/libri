@@ -9,6 +9,7 @@ use serde::Deserialize;
 use shiori_api_types::EncodableLibrary;
 use shiori_api_types::EncodableMedia;
 use shiori_database::models::Library;
+use shiori_database::models::Media;
 use shiori_database::models::NewLibrary;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
@@ -121,16 +122,27 @@ async fn get_library(Path(_library_id): Path<i32>, State(_app): State<AppState>)
         ("id" = i32, Path, description = "Id of the library")
     ),
     responses(
-        (status = 200, description = "Successfully fetched library media", body = inline(EncodableMedia)),
+        (status = 200, description = "Successfully fetched library media", body = inline(Vec<EncodableMedia>)),
         (status = 404, description = "Library not found"),
         (status = 500, description = "Internal server error")
     )
 )]
 async fn list_library_media(
-    Path(_library_id): Path<i32>,
-    State(_app): State<AppState>,
-) -> APIResult<()> {
-    Err(APIError::NotImplemented)
+    Path(library_id): Path<i32>,
+    State(app): State<AppState>,
+) -> APIResult<Json<Vec<EncodableMedia>>> {
+    let mut conn = app.db().await?;
+
+    let library = Library::find(&mut conn, library_id).await?;
+
+    let items = Media::find_by_library_id(&mut conn, library_id).await?;
+
+    let media = items
+        .into_iter()
+        .map(|m| EncodableMedia::from_media(m, &library.name))
+        .collect::<Vec<_>>();
+
+    Ok(Json(media))
 }
 
 /// Upload a new media item to the specified library.

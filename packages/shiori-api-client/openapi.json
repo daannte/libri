@@ -188,54 +188,57 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "required": [
-                    "id",
-                    "name",
-                    "size",
-                    "path",
-                    "extension",
-                    "created_at",
-                    "library_id"
-                  ],
-                  "properties": {
-                    "created_at": {
-                      "type": "string",
-                      "format": "date-time",
-                      "description": "Timestamp of when the media was created.",
-                      "example": "2026-03-23T12:00:00Z"
-                    },
-                    "extension": {
-                      "type": "string",
-                      "description": "File extension of the media.",
-                      "example": "epub"
-                    },
-                    "id": {
-                      "type": "integer",
-                      "format": "int32",
-                      "description": "Unique identifier for the media item.",
-                      "example": 86
-                    },
-                    "library_id": {
-                      "type": "string",
-                      "description": "Name of the library this media belongs to.",
-                      "example": "Light Novels"
-                    },
-                    "name": {
-                      "type": "string",
-                      "description": "Name of the media file, excluding extension.",
-                      "example": "86_Volume_1"
-                    },
-                    "path": {
-                      "type": "string",
-                      "description": "File system path where the media is stored.",
-                      "example": "/data/books/light_novels/86_Volume_1.epub"
-                    },
-                    "size": {
-                      "type": "integer",
-                      "format": "int64",
-                      "description": "Size of the media file in bytes.",
-                      "example": "102400"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "name",
+                      "size",
+                      "path",
+                      "extension",
+                      "created_at",
+                      "library_id"
+                    ],
+                    "properties": {
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp of when the media was created.",
+                        "example": "2026-03-23T12:00:00Z"
+                      },
+                      "extension": {
+                        "type": "string",
+                        "description": "File extension of the media.",
+                        "example": "epub"
+                      },
+                      "id": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Unique identifier for the media item.",
+                        "example": 86
+                      },
+                      "library_id": {
+                        "type": "string",
+                        "description": "Name of the library this media belongs to.",
+                        "example": "Light Novels"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "Name of the media file, excluding extension.",
+                        "example": "86_Volume_1"
+                      },
+                      "path": {
+                        "type": "string",
+                        "description": "File system path where the media is stored.",
+                        "example": "/data/books/light_novels/86_Volume_1.epub"
+                      },
+                      "size": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Size of the media file in bytes.",
+                        "example": "102400"
+                      }
                     }
                   }
                 }

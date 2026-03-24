@@ -24,7 +24,7 @@
         "openapi-typescript": "^7.13.0",
       },
     },
-    "svelte": {
+    "web": {
       "name": "@shiori/web",
       "version": "0.0.0",
       "dependencies": {
@@ -227,7 +227,7 @@
 
     "@shiori/api-client": ["@shiori/api-client@workspace:packages/shiori-api-client"],
 
-    "@shiori/web": ["@shiori/web@workspace:svelte"],
+    "@shiori/web": ["@shiori/web@workspace:web"],
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 

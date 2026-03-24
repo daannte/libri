@@ -296,7 +296,7 @@ export interface operations {
                          * @example 102400
                          */
                         size: number;
-                    };
+                    }[];
                 };
             };
             /** @description Library not found */
