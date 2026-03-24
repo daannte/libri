@@ -25,7 +25,7 @@ impl Library {
         Library::query().find(id).first(conn).await
     }
 
-    pub async fn list_libraries(conn: &mut AsyncPgConnection) -> QueryResult<Vec<Library>> {
+    pub async fn all(conn: &mut AsyncPgConnection) -> QueryResult<Vec<Library>> {
         Library::query().load(conn).await
     }
 }
