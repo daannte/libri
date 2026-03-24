@@ -84,6 +84,10 @@ export interface components {
             /** @description File system path to the library's directory. */
             path: string;
         };
+        NewMediaRequest: {
+            /** @description An array of files to upload. */
+            files: Record<string, never>[];
+        };
     };
     responses: never;
     parameters: never;
@@ -276,10 +280,11 @@ export interface operations {
                          */
                         id: number;
                         /**
-                         * @description Name of the library this media belongs to.
-                         * @example Light Novels
+                         * Format: int32
+                         * @description Library this media belongs to.
+                         * @example 2
                          */
-                        library_id: string;
+                        library_id: number;
                         /**
                          * @description Name of the media file, excluding extension.
                          * @example 86_Volume_1
@@ -325,10 +330,63 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["NewMediaRequest"];
+            };
+        };
         responses: {
             /** @description Successfully added media to the library */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date-time
+                         * @description Timestamp of when the media was created.
+                         * @example 2026-03-23T12:00:00Z
+                         */
+                        created_at: string;
+                        /**
+                         * @description File extension of the media.
+                         * @example epub
+                         */
+                        extension: string;
+                        /**
+                         * Format: int32
+                         * @description Unique identifier for the media item.
+                         * @example 86
+                         */
+                        id: number;
+                        /**
+                         * Format: int32
+                         * @description Library this media belongs to.
+                         * @example 2
+                         */
+                        library_id: number;
+                        /**
+                         * @description Name of the media file, excluding extension.
+                         * @example 86_Volume_1
+                         */
+                        name: string;
+                        /**
+                         * @description File system path where the media is stored.
+                         * @example /data/books/light_novels/86_Volume_1.epub
+                         */
+                        path: string;
+                        /**
+                         * Format: int64
+                         * @description Size of the media file in bytes.
+                         * @example 102400
+                         */
+                        size: number;
+                    }[];
+                };
+            };
+            /** @description Invalid uploaded media */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
