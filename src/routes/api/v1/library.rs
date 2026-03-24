@@ -211,7 +211,14 @@ async fn create_library_media(
             .as_deref()
             .ok_or_else(|| APIError::BadRequest("Media must have a filename.".to_string()))?;
 
-        let ext = path::Path::new(file_name)
+        let path = path::Path::new(file_name);
+
+        let file_stem = path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or(file_name);
+
+        let ext = path
             .extension()
             .and_then(OsStr::to_str)
             .map(str::to_ascii_lowercase)
@@ -226,7 +233,7 @@ async fn create_library_media(
         }
 
         let new_media = NewMedia {
-            name: file_name,
+            name: file_stem,
             size: f
                 .contents
                 .as_file()
