@@ -7,7 +7,7 @@
 </script>
 
 <div class="min-h-screen p-6">
-	{#if data.media}
+	{#if data.media.length > 0}
 		{#each data.media as media (media.id)}
 			<div class="m-2 rounded-2xl bg-secondary p-4">
 				<a href="#top">
