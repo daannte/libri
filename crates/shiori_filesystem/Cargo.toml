@@ -1,0 +1,6 @@
+[package]
+name = "shiori_filesystem"
+edition = "2024"
+
+[dependencies]
+rbook = "0.7.5"

@@ -25,9 +25,9 @@ pub struct EncodableMetadataSearch {
     #[schema(example = "2019-03-26")]
     pub published_at: Option<NaiveDate>,
 
-    /// URL of the thumbnail image associated with the media.
-    #[schema(example = "https://example.com/thumbnail.jpg")]
-    pub thumbnail_url: Option<String>,
+    /// URL of the cover image associated with the media.
+    #[schema(example = "https://example.com/cover.jpg")]
+    pub cover_url: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, utoipa::ToSchema)]
@@ -92,9 +92,9 @@ pub struct EncodableMedia {
     #[schema(example = 2)]
     pub library_id: i32,
 
-    /// File system path where the thumbnail is stored.
-    #[schema(example = "/data/thumbnails/86_Volume_1.png")]
-    pub thumbnail_path: Option<String>,
+    /// File system path where the cover is stored.
+    #[schema(example = "/data/covers/86_Volume_1.png")]
+    pub cover_path: Option<String>,
 }
 
 impl From<Media> for EncodableMedia {
@@ -107,7 +107,7 @@ impl From<Media> for EncodableMedia {
             extension: media.extension,
             created_at: media.created_at,
             library_id: media.library_id,
-            thumbnail_path: media.thumbnail_path,
+            cover_path: media.cover_path,
         }
     }
 }

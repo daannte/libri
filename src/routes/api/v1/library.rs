@@ -1,3 +1,4 @@
+use shiori_filesystem::media::epub::Epub;
 use std::ffi::OsStr;
 use std::path;
 use tokio::fs;
@@ -199,7 +200,6 @@ async fn create_library_media(
     // TODO:
     // - Refactor this func
     // - Keep running even if some files fail
-    // - Try and get thumbnail from the epub
     let mut conn = app.db().await?;
 
     let mut uploaded: Vec<EncodableMedia> = Vec::new();
@@ -215,10 +215,7 @@ async fn create_library_media(
 
         let path = path::Path::new(file_name);
 
-        let file_stem = path
-            .file_stem()
-            .and_then(|s| s.to_str())
-            .unwrap_or(file_name);
+        let file_stem = path.file_stem().and_then(|s| s.to_str()).unwrap();
 
         let ext = path
             .extension()
@@ -233,6 +230,8 @@ async fn create_library_media(
                 "Media already exists in library".to_string(),
             ));
         }
+
+        let cover_path = Epub::get_cover_path(file_stem, f.contents.path());
 
         let new_media = NewMedia {
             name: file_stem,
@@ -250,7 +249,7 @@ async fn create_library_media(
             path: &media_path.to_string_lossy().to_string(),
             extension: &ext,
             library_id,
-            thumbnail_path: None,
+            cover_path: cover_path.as_deref(),
         };
 
         let media = new_media.insert(&mut conn).await?;

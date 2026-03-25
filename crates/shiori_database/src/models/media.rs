@@ -26,8 +26,8 @@ pub struct Media {
     /// Foreign key reference to the `libraries` table,
     /// indicating the library to which this media belongs.
     pub library_id: i32,
-    /// File system path where the thumbnail is stored.
-    pub thumbnail_path: Option<String>,
+    /// File system path where the cover is stored.
+    pub cover_path: Option<String>,
 }
 
 impl Media {
@@ -52,7 +52,7 @@ pub struct NewMedia<'a> {
     pub path: &'a str,
     pub extension: &'a str,
     pub library_id: i32,
-    pub thumbnail_path: Option<&'a str>,
+    pub cover_path: Option<&'a str>,
 }
 
 impl NewMedia<'_> {
