@@ -1,0 +1,2 @@
+ALTER TABLE media
+ADD COLUMN thumbnail_path TEXT

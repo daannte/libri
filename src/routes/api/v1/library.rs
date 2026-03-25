@@ -196,8 +196,10 @@ async fn create_library_media(
     State(app): State<AppState>,
     TypedMultipart(body): TypedMultipart<NewMediaRequest>,
 ) -> APIResult<Json<Vec<EncodableMedia>>> {
-    // TODO: Refactor this func
-    // TODO: Keep running even if some files fail
+    // TODO:
+    // - Refactor this func
+    // - Keep running even if some files fail
+    // - Try and get thumbnail from the epub
     let mut conn = app.db().await?;
 
     let mut uploaded: Vec<EncodableMedia> = Vec::new();
@@ -248,6 +250,7 @@ async fn create_library_media(
             path: &media_path.to_string_lossy().to_string(),
             extension: &ext,
             library_id,
+            thumbnail_path: None,
         };
 
         let media = new_media.insert(&mut conn).await?;
