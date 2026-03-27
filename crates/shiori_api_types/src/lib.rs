@@ -79,7 +79,9 @@ impl From<Media> for EncodableMedia {
             extension: media.extension,
             created_at: media.created_at,
             library_id: media.library_id,
-            cover_path: media.cover_path,
+            cover_path: media
+                .cover_path
+                .map(|_| format!("/api/v1/{}/cover", media.id)),
         }
     }
 }
