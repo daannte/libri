@@ -1,8 +1,15 @@
 use std::path;
 
-use axum::extract::{Path, State};
-use shiori_database::models::Media;
-use shiori_filesystem::common::get_cover;
+use axum::{
+    Json,
+    extract::{Path, State},
+};
+use chrono::NaiveDate;
+use diesel::prelude::*;
+use diesel_async::RunQueryDsl;
+use serde::Deserialize;
+use shiori_database::{models::Media, schema::media};
+use shiori_filesystem::image::cover::{download_cover, get_cover};
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{
@@ -11,7 +18,9 @@ use crate::{
 };
 
 pub fn mount() -> OpenApiRouter<AppState> {
-    OpenApiRouter::new().routes(routes!(get_media_cover))
+    OpenApiRouter::new()
+        .routes(routes!(get_media_cover))
+        .routes(routes!(patch_media))
 }
 
 /// Fetch media cover.
@@ -45,4 +54,78 @@ async fn get_media_cover(
         .map_err(|_| APIError::InternalServerError("Failed to get cover".to_string()))?;
 
     Ok(data)
+}
+
+#[derive(Debug, Default, Deserialize, utoipa::ToSchema)]
+pub struct PatchMetadata {
+    /// List of authors associated with the media item.
+    #[schema(examples(json!(["Asato Asato"])))]
+    pub authors: Option<Vec<String>>,
+
+    /// Name of the publisher or publishing organization.
+    #[schema(examples("Yen On"))]
+    pub publisher: Option<String>,
+
+    /// International Standard Book Number (ISBN).
+    /// Typically used for books.
+    #[schema(examples("1975303121"))]
+    pub isbn: Option<String>,
+
+    /// Language of the media content.
+    #[schema(examples("English"))]
+    pub language: Option<String>,
+
+    /// Date the media was published.
+    #[schema(examples("2019-03-26"))]
+    pub published_at: Option<NaiveDate>,
+}
+
+#[derive(Debug, Deserialize, utoipa::ToSchema)]
+pub struct PatchRequest {
+    /// URL of the cover image associated with the media.
+    #[schema(examples("https://example.com/cover.jpg"))]
+    pub cover_url: Option<String>,
+
+    /// Optional metadata to update for the media item.
+    pub metadata: Option<PatchMetadata>,
+}
+
+/// Update media information.
+#[utoipa::path(
+    patch,
+    path = "/media/{id}",
+    tag = "media",
+    params(
+        ("id" = i32, Path, description = "Id of the media item")
+    ),
+    request_body = inline(PatchRequest),
+    responses(
+        (status = 200, description = "Successfully updated media information"),
+        (status = 404, description = "Media not found"),
+        (status = 500, description = "Internal server error")
+    )
+)]
+async fn patch_media(
+    Path(media_id): Path<i32>,
+    State(app): State<AppState>,
+    Json(body): Json<PatchRequest>,
+) -> APIResult<Vec<u8>> {
+    let mut conn = app.db().await?;
+
+    println!("{body:#?}");
+    let m = Media::find(&mut conn, media_id).await?;
+
+    if let Some(cover_url) = body.cover_url {
+        let cover_path = download_cover(&cover_url)
+            .await
+            .map_err(|_| APIError::InternalServerError("Failed to download cover".to_string()))?;
+
+        let updated_media = diesel::update(&m)
+            .set(media::cover_path.eq(cover_path))
+            .get_result::<Media>(&mut conn)
+            .await?;
+        println!("{updated_media:#?}");
+    }
+
+    Ok(Vec::new())
 }
