@@ -62,7 +62,7 @@ struct NewLibraryRequest {
     post,
     path = "/libraries",
     tag = "library",
-    request_body = NewLibraryRequest,
+    request_body = inline(NewLibraryRequest),
     responses(
         (status = 200, description = "Successfully created library", body = inline(EncodableLibrary)),
         (status = 400, description = "Invalid request body"),
@@ -111,7 +111,7 @@ async fn create_library(
         path: &body.path,
     };
 
-    let library = new_library.insert(&mut conn).await?;
+    let library = new_library.insert(&conn).await?;
 
     // TODO: Make this atomic with the db insert? (if possible)
     fs::create_dir_all(body.path).await?;
@@ -120,6 +120,8 @@ async fn create_library(
 }
 
 /// Fetch library by id.
+///
+/// Not implemented
 #[utoipa::path(
     get,
     path = "/libraries/{id}",
@@ -169,7 +171,7 @@ async fn list_library_media(
 #[derive(TryFromMultipart, ToSchema)]
 struct NewMediaRequest {
     /// An array of files to upload.
-    #[schema(value_type = Vec<Object>)]
+    #[schema(format = Binary, value_type = Vec<u8>)]
     files: Vec<FieldData<NamedTempFile>>,
 }
 
@@ -182,7 +184,7 @@ struct NewMediaRequest {
         ("id" = i32, Path, description = "Id of the library")
     ),
     request_body(
-        content = NewMediaRequest,
+        content = inline(NewMediaRequest),
         content_type = "multipart/form-data"
     ),
     responses(
@@ -246,7 +248,7 @@ async fn create_library_media(
                     println!("Failed to convert to i64");
                     0
                 }),
-            path: &media_path.to_string_lossy().to_string(),
+            path: &media_path.to_string_lossy(),
             extension: &ext,
             library_id,
             cover_path: cover_path.as_deref(),
