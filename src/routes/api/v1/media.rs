@@ -8,7 +8,10 @@ use chrono::NaiveDate;
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use serde::Deserialize;
-use shiori_database::{models::Media, schema::media};
+use shiori_database::{
+    models::{Media, UpdateMediaMetadata},
+    schema::media,
+};
 use shiori_filesystem::image::cover::{download_cover, get_cover};
 use utoipa_axum::{router::OpenApiRouter, routes};
 
@@ -49,7 +52,7 @@ async fn get_media_cover(
         .cover_path
         .ok_or_else(|| APIError::NotFound("Media does not have a cover".to_string()))?;
 
-    let data = get_cover(&path::Path::new(&path))
+    let data = get_cover(path::Path::new(&path))
         .await
         .map_err(|_| APIError::InternalServerError("Failed to get cover".to_string()))?;
 
@@ -125,6 +128,19 @@ async fn patch_media(
             .get_result::<Media>(&mut conn)
             .await?;
         println!("{updated_media:#?}");
+    }
+
+    if let Some(metadata) = body.metadata {
+        let changes = UpdateMediaMetadata {
+            authors: metadata.authors,
+            publisher: metadata.publisher,
+            isbn: metadata.isbn,
+            language: metadata.language,
+            published_at: metadata.published_at,
+        };
+
+        let updated = changes.upsert(&mut conn, m.id).await?;
+        println!("{updated:#?}");
     }
 
     Ok(Vec::new())

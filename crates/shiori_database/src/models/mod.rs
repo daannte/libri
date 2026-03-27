@@ -1,7 +1,7 @@
 pub use self::library::{Library, NewLibrary};
 pub use self::media::{Media, NewMedia};
-pub use self::media_metadata::{MediaMetadata, NewMediaMetadata};
+pub use self::media_metadata::{MediaMetadata, NewMediaMetadata, UpdateMediaMetadata};
 
-pub mod library;
-pub mod media;
-pub mod media_metadata;
+mod library;
+mod media;
+mod media_metadata;

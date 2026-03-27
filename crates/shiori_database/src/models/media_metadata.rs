@@ -8,10 +8,11 @@ use crate::{models::Media, schema::media_metadata};
 use serde::Serialize;
 
 /// The model representing a row in the `media_metadata` database table.
-#[derive(Debug, HasQuery, ToSchema, Serialize, Associations)]
+#[derive(Debug, HasQuery, Identifiable, ToSchema, Serialize, Associations)]
 #[diesel(table_name = media_metadata)]
 #[diesel(belongs_to(Media))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[diesel(primary_key(media_id))]
 pub struct MediaMetadata {
     /// Foreign key reference to the `media` table,
     /// indicating the media to which this metadata belongs.
@@ -29,22 +30,57 @@ pub struct MediaMetadata {
     pub published_at: Option<NaiveDate>,
 }
 
+impl MediaMetadata {
+    pub async fn find(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<MediaMetadata> {
+        MediaMetadata::query().find(id).first(conn).await
+    }
+}
+
 /// Represents a new media_metadata record insertable to the `media_metadata` table.
 #[derive(Debug, Insertable)]
 #[diesel(table_name = media_metadata)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct NewMediaMetadata<'a> {
-    pub authors: Vec<&'a str>,
-    pub publisher: Option<&'a str>,
-    pub isbn: Option<&'a str>,
-    pub language: Option<&'a str>,
+pub struct NewMediaMetadata {
+    pub media_id: i32,
+    pub authors: Vec<String>,
+    pub publisher: Option<String>,
+    pub isbn: Option<String>,
+    pub language: Option<String>,
     pub published_at: Option<NaiveDate>,
 }
 
-impl NewMediaMetadata<'_> {
-    pub async fn insert(&self, conn: &mut AsyncPgConnection) -> QueryResult<MediaMetadata> {
+/// Represents a PATCH update for the `media_metadata` table.
+#[derive(Debug, Default, AsChangeset, ToSchema)]
+#[diesel(table_name = media_metadata)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct UpdateMediaMetadata {
+    pub authors: Option<Vec<String>>,
+    pub publisher: Option<String>,
+    pub isbn: Option<String>,
+    pub language: Option<String>,
+    pub published_at: Option<NaiveDate>,
+}
+
+impl UpdateMediaMetadata {
+    pub async fn upsert(
+        &self,
+        conn: &mut AsyncPgConnection,
+        media_id: i32,
+    ) -> QueryResult<MediaMetadata> {
+        let new = NewMediaMetadata {
+            media_id,
+            authors: self.authors.clone().unwrap_or_default(),
+            publisher: self.publisher.clone(),
+            isbn: self.isbn.clone(),
+            language: self.language.clone(),
+            published_at: self.published_at,
+        };
+
         diesel::insert_into(media_metadata::table)
-            .values(self)
+            .values(new)
+            .on_conflict(media_metadata::media_id)
+            .do_update()
+            .set(self)
             .returning(MediaMetadata::as_returning())
             .get_result(conn)
             .await

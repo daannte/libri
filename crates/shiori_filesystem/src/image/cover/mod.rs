@@ -17,7 +17,7 @@ pub async fn download_cover(url: &str) -> Result<String, Box<dyn std::error::Err
     let covers_dir = env::var("COVERS_DIR").expect("COVERS_DIR must be set");
     let bytes = reqwest::get(url).await?.error_for_status()?.bytes().await?;
 
-    let filename = url.split('/').last().unwrap();
+    let filename = url.split('/').next_back().unwrap();
     let path = PathBuf::from(covers_dir).join(filename);
 
     let mut file = File::create(&path).await?;
