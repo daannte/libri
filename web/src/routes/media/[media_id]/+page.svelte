@@ -12,22 +12,24 @@
 	);
 </script>
 
-<div class="flex h-screen">
-	<div class="relative flex flex-1 items-center justify-center">
+<div class="flex h-screen flex-col xl:flex-row">
+	<div class="relative flex items-center justify-center p-4 md:flex-1 md:p-0">
 		<img
-			class="z-1 aspect-2/3 max-h-[60vh] w-auto rounded-xl object-contain"
+			class="aspect-2/3 max-h-[40vh] w-auto rounded-xl object-contain md:max-h-[60vh]"
 			src={get_cover_url(data.cover_path) ?? ''}
 			alt={`${data.name} cover image`}
 		/>
 	</div>
-	<div class="flex flex-1 flex-col justify-center pr-48">
+
+	<div class="flex flex-1 flex-col justify-center p-4 lg:pr-16">
 		<div class="flex flex-col gap-2">
-			<h1 class="font-serif text-2xl md:text-3xl lg:text-4xl">
+			<h1 class="font-serif text-xl md:text-3xl lg:text-4xl">
 				{data.name}
 			</h1>
-			<h2 class="md:text-xl">
+			<h2 class="text-base md:text-xl">
 				by <span class="font-medium">{data.metadata?.authors}</span>
 			</h2>
+
 			{#if data.metadata?.genres?.length}
 				<div class="text-sm text-muted-foreground">
 					{data.metadata.genres.join(', ')}
@@ -35,11 +37,11 @@
 			{/if}
 		</div>
 
-		<p class="mt-4 md:mt-8">{@html data.metadata?.description}</p>
+		<p class="mt-4 text-sm md:mt-8 md:text-base">{@html data.metadata?.description}</p>
 
 		<div class="my-8 border-t-2"></div>
 
-		<div class="grid grid-cols-[auto_1fr_auto_1fr] gap-x-8 gap-y-2">
+		<div class="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-[auto_1fr_auto_1fr] sm:gap-x-8">
 			{#each metadataArr as [label, value]}
 				{@render metadata(label, value ?? 'Unknown')}
 			{/each}
@@ -48,12 +50,12 @@
 </div>
 
 {#snippet metadata(label: string, value: string | string[])}
-	<span class="font-medium">
+	<span class="text-sm font-medium sm:text-base">
 		{label.toLowerCase() === 'isbn'
 			? 'ISBN'
 			: label.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
 	</span>
-	<span class="text-muted-foreground">
+	<span class="text-sm wrap-break-word text-muted-foreground sm:text-base">
 		{#if label.toLowerCase() === 'published_at' && typeof value === 'string'}
 			{new Date(value).toLocaleDateString('en-US', {
 				year: 'numeric',
