@@ -1,8 +1,8 @@
 <script lang="ts">
+	import { get_cover_url } from '@shiori/api-client';
 	import * as Empty from '$lib/components/ui/empty';
 
 	import BookText from '@lucide/svelte/icons/book-text';
-	import { get_cover_url } from '@shiori/api-client';
 
 	let { data } = $props();
 </script>
@@ -17,7 +17,7 @@
 					<div class="aspect-2/3 w-full overflow-hidden">
 						<img
 							class="h-full w-full rounded-xl object-cover"
-							src={get_cover_url(media.id)}
+							src={media.cover_path ? get_cover_url(media.cover_path) : ''}
 							alt={`${media.name} cover image`}
 						/>
 					</div>
