@@ -17,6 +17,25 @@
 			: []
 	);
 
+	function formatValue(key: string, value: string | string[] | null) {
+		if (!value) return 'Unknown';
+
+		if (key === 'published_at' && typeof value === 'string') {
+			return new Date(value).toLocaleDateString('en-US', {
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric'
+			});
+		}
+
+		return value;
+	}
+
+	function labelize(key: string) {
+		if (key.toLowerCase() === 'isbn') return 'ISBN';
+		return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+	}
+
 	$inspect(manualData);
 </script>
 
@@ -56,27 +75,17 @@
 
 		<div class="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-[auto_1fr_auto_1fr] sm:gap-x-8">
 			{#each metadataArr as [label, value]}
-				{@render metadata(label, value ?? 'Unknown')}
+				{@render metadata(label, value)}
 			{/each}
 		</div>
 	</div>
 </div>
 
-{#snippet metadata(label: string, value: string | string[])}
+{#snippet metadata(key: string, value: string | string[] | null)}
 	<span class="text-sm font-medium sm:text-base">
-		{label.toLowerCase() === 'isbn'
-			? 'ISBN'
-			: label.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+		{labelize(key)}
 	</span>
 	<span class="text-sm wrap-break-word text-muted-foreground sm:text-base">
-		{#if label.toLowerCase() === 'published_at' && typeof value === 'string'}
-			{new Date(value).toLocaleDateString('en-US', {
-				year: 'numeric',
-				month: 'long',
-				day: 'numeric'
-			})}
-		{:else}
-			{value}
-		{/if}
+		{formatValue(key, value)}
 	</span>
 {/snippet}
