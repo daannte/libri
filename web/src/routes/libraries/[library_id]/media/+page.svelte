@@ -17,7 +17,7 @@
 					<div class="aspect-2/3 w-full overflow-hidden">
 						<img
 							class="h-full w-full rounded-xl object-cover"
-							src={media.cover_path ? get_cover_url(media.cover_path) : ''}
+							src={get_cover_url(media.cover_path) ?? ''}
 							alt={`${media.name} cover image`}
 						/>
 					</div>
