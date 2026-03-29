@@ -28,6 +28,10 @@ pub struct MediaMetadata {
     pub language: Option<String>,
     /// Date the media was published.
     pub published_at: Option<NaiveDate>,
+    /// Description of the media item.
+    pub description: Option<String>,
+    /// List of genres associated with the media item.
+    pub genres: Vec<String>,
 }
 
 impl MediaMetadata {
@@ -47,6 +51,8 @@ pub struct NewMediaMetadata {
     pub isbn: Option<String>,
     pub language: Option<String>,
     pub published_at: Option<NaiveDate>,
+    pub description: Option<String>,
+    pub genres: Vec<String>,
 }
 
 /// Represents a PATCH update for the `media_metadata` table.
@@ -59,6 +65,8 @@ pub struct UpdateMediaMetadata {
     pub isbn: Option<String>,
     pub language: Option<String>,
     pub published_at: Option<NaiveDate>,
+    pub description: Option<String>,
+    pub genres: Option<Vec<String>>,
 }
 
 impl UpdateMediaMetadata {
@@ -73,7 +81,9 @@ impl UpdateMediaMetadata {
             publisher: self.publisher.clone(),
             isbn: self.isbn.clone(),
             language: self.language.clone(),
-            published_at: self.published_at,
+            published_at: self.published_at.clone(),
+            description: self.description.clone(),
+            genres: self.genres.clone().unwrap_or_default(),
         };
 
         diesel::insert_into(media_metadata::table)

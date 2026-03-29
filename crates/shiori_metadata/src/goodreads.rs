@@ -6,6 +6,8 @@ use shiori_api_types::EncodableMetadataSearch;
 pub struct GoodreadsProvider;
 
 // TODO: Def refactor this, i dont like how it looks rn lol
+//
+// Would prob be a good idea to make my own types for this.
 impl MetadataProvider for GoodreadsProvider {
     const URL: &str = "https://www.goodreads.com/book/show/";
 
@@ -33,11 +35,10 @@ impl MetadataProvider for GoodreadsProvider {
             Self::book_info(apollo_state).ok_or_else(|| MetadataError::MissingBookInfo)?;
 
         let mut metadata = EncodableMetadataSearch {
-            authors: Self::extract_author_names(apollo_state, book_info)
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
+            authors: Self::extract_author_names(apollo_state, book_info),
             cover_url: book_info.get("imageUrl").map(|s| s.to_string()),
+            description: book_info.get("description").map(|s| s.to_string()),
+            genres: Self::extract_genres(book_info),
             ..Default::default()
         };
 
@@ -80,6 +81,24 @@ impl GoodreadsProvider {
             .map(|(_, v)| v)
     }
 
+    /// Return a list of genres
+    fn extract_genres(book_info: &Value) -> Vec<String> {
+        book_info
+            .get("bookGenres")
+            .and_then(|g| g.as_array())
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|g| {
+                        g.get("genre")
+                            .and_then(|g| g.get("name"))
+                            .and_then(Value::as_str)
+                            .map(|s| s.to_string())
+                    })
+                    .collect()
+            })
+            .unwrap_or_default()
+    }
+
     /// Given a reference key, return the author's name if it exists
     fn get_author_name<'a>(apollo_state: &'a Value, r: Option<&'a str>) -> Option<&'a str> {
         let key = r?;
@@ -87,7 +106,7 @@ impl GoodreadsProvider {
     }
 
     /// Return a list of all author names
-    fn extract_author_names<'a>(apollo_state: &'a Value, book_info: &'a Value) -> Vec<&'a str> {
+    fn extract_author_names(apollo_state: &Value, book_info: &Value) -> Vec<String> {
         let mut authors = Vec::new();
 
         // Primary author
@@ -127,6 +146,6 @@ impl GoodreadsProvider {
             }
         }
 
-        authors
+        authors.iter().map(|s| s.to_string()).collect()
     }
 }

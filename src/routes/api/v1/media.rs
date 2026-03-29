@@ -112,6 +112,14 @@ pub struct PatchMetadata {
     /// Date the media was published.
     #[schema(examples("2019-03-26"))]
     pub published_at: Option<NaiveDate>,
+
+    /// Description of the media item.
+    #[schema(example = "The San Magnolia Republic...")]
+    pub description: Option<String>,
+
+    /// List of genres associated with the media item.
+    #[schema(example = json!(["Light Novel", "War"]))]
+    pub genres: Option<Vec<String>>,
 }
 
 // I don't like this but its whatever
@@ -187,6 +195,8 @@ async fn patch_media(
                         isbn: metadata.isbn.clone(),
                         language: metadata.language.clone(),
                         published_at: metadata.published_at,
+                        description: metadata.description.clone(),
+                        genres: metadata.genres.clone(),
                     };
 
                     Some(changes.upsert(conn, m.id).await?)
