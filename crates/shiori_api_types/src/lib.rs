@@ -109,6 +109,14 @@ pub struct EncodableMetadata {
     /// Date the media was published.
     #[schema(example = "2019-03-26")]
     pub published_at: Option<NaiveDate>,
+
+    /// Description of the media item.
+    #[schema(example = "The San Magnolia Republic...")]
+    pub description: Option<String>,
+
+    /// List of genres associated with the media item.
+    #[schema(example = json!(["Light Novel", "War"]))]
+    pub genres: Vec<String>,
 }
 
 impl From<MediaMetadata> for EncodableMetadata {
@@ -119,6 +127,8 @@ impl From<MediaMetadata> for EncodableMetadata {
             isbn: metadata.isbn,
             language: metadata.language,
             published_at: metadata.published_at,
+            description: metadata.description,
+            genres: metadata.genres,
         }
     }
 }

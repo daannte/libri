@@ -6,6 +6,8 @@ use shiori_api_types::EncodableMetadataSearch;
 pub struct GoodreadsProvider;
 
 // TODO: Def refactor this, i dont like how it looks rn lol
+//
+// Would prob be a good idea to make my own types for this.
 impl MetadataProvider for GoodreadsProvider {
     const URL: &str = "https://www.goodreads.com/book/show/";
 
