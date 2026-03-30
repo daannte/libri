@@ -1,6 +1,5 @@
 use chrono::NaiveDate;
 use diesel::prelude::*;
-use utoipa::ToSchema;
 
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 
@@ -8,7 +7,7 @@ use crate::{models::Media, schema::media_metadata};
 use serde::Serialize;
 
 /// The model representing a row in the `media_metadata` database table.
-#[derive(Debug, HasQuery, Identifiable, ToSchema, Serialize, Associations)]
+#[derive(Debug, HasQuery, Identifiable, Serialize, Associations)]
 #[diesel(table_name = media_metadata)]
 #[diesel(belongs_to(Media))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
@@ -56,7 +55,7 @@ pub struct NewMediaMetadata {
 }
 
 /// Represents a PATCH update for the `media_metadata` table.
-#[derive(Debug, Default, AsChangeset, ToSchema)]
+#[derive(Debug, Default, AsChangeset)]
 #[diesel(table_name = media_metadata)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct UpdateMediaMetadata {

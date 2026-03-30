@@ -5,14 +5,10 @@ use axum::{
     extract::{Path, State},
 };
 use chrono::NaiveDate;
-use diesel::prelude::*;
-use diesel_async::{AsyncConnection, RunQueryDsl, scoped_futures::ScopedFutureExt};
+use diesel_async::{AsyncConnection, scoped_futures::ScopedFutureExt};
 use serde::Deserialize;
 use shiori_api_types::{EncodableMediaWithMetadata, EncodableMetadata};
-use shiori_database::{
-    models::{Media, UpdateMediaMetadata},
-    schema::media,
-};
+use shiori_database::models::{Media, UpdateMedia, UpdateMediaMetadata};
 use shiori_filesystem::image::cover::{download_cover, get_cover};
 use utoipa_axum::{router::OpenApiRouter, routes};
 
@@ -137,6 +133,10 @@ impl PatchMetadata {
 
 #[derive(Deserialize, utoipa::ToSchema)]
 pub struct PatchRequest {
+    /// Name of the media item.
+    #[schema(examples("86—EIGHTY-SIX, Vol. 1"))]
+    pub name: Option<String>,
+
     /// URL of the cover image associated with the media.
     #[schema(examples("https://example.com/cover.jpg"))]
     pub cover_url: Option<String>,
@@ -176,15 +176,17 @@ async fn patch_media(
             None
         };
 
+    let changes = UpdateMedia {
+        name: body.name.as_deref(),
+        cover_path: downloaded_cover.as_deref(),
+    };
+
     conn.transaction(|conn| {
         async move {
             let mut m = Media::find(conn, media_id).await?;
 
-            if let Some(cover_path) = downloaded_cover {
-                m = diesel::update(&m)
-                    .set(media::cover_path.eq(cover_path))
-                    .get_result::<Media>(conn)
-                    .await?;
+            if !changes.is_empty() {
+                m = changes.update(conn, m).await?;
             }
 
             let metadata = if let Some(metadata) = &body.metadata {
