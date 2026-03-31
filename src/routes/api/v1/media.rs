@@ -1,19 +1,18 @@
-use std::path;
+use std::{ffi::OsStr, path};
 
 use axum::{
     Json,
     extract::{Path, State},
 };
 use chrono::NaiveDate;
-use diesel::prelude::*;
-use diesel_async::{AsyncConnection, RunQueryDsl, scoped_futures::ScopedFutureExt};
+use diesel_async::{AsyncConnection, scoped_futures::ScopedFutureExt};
 use serde::Deserialize;
 use shiori_api_types::{EncodableMediaWithMetadata, EncodableMetadata};
-use shiori_database::{
-    models::{Media, UpdateMediaMetadata},
-    schema::media,
+use shiori_database::models::{Media, PatchMedia, UpdateMediaMetadata};
+use shiori_filesystem::{
+    common::move_file,
+    image::cover::{download_cover, get_cover},
 };
-use shiori_filesystem::image::cover::{download_cover, get_cover};
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{
@@ -114,11 +113,11 @@ pub struct PatchMetadata {
     pub published_at: Option<NaiveDate>,
 
     /// Description of the media item.
-    #[schema(example = "The San Magnolia Republic...")]
+    #[schema(examples("The San Magnolia Republic..."))]
     pub description: Option<String>,
 
     /// List of genres associated with the media item.
-    #[schema(example = json!(["Light Novel", "War"]))]
+    #[schema(examples(json!(["Light Novel", "War"])))]
     pub genres: Option<Vec<String>>,
 }
 
@@ -137,6 +136,10 @@ impl PatchMetadata {
 
 #[derive(Deserialize, utoipa::ToSchema)]
 pub struct PatchRequest {
+    /// Name of the media item.
+    #[schema(examples("86—EIGHTY-SIX, Vol. 1"))]
+    pub name: Option<String>,
+
     /// URL of the cover image associated with the media.
     #[schema(examples("https://example.com/cover.jpg"))]
     pub cover_url: Option<String>,
@@ -180,11 +183,36 @@ async fn patch_media(
         async move {
             let mut m = Media::find(conn, media_id).await?;
 
-            if let Some(cover_path) = downloaded_cover {
-                m = diesel::update(&m)
-                    .set(media::cover_path.eq(cover_path))
-                    .get_result::<Media>(conn)
-                    .await?;
+            let mut new_path: Option<String> = None;
+
+            if let Some(name) = &body.name {
+                let source = path::Path::new(&m.path);
+
+                let ext = source.extension().and_then(OsStr::to_str).unwrap_or("");
+
+                let filename = if ext.is_empty() {
+                    name.clone()
+                } else {
+                    format!("{}.{}", name, ext)
+                };
+
+                let mut dest = path::PathBuf::from(&m.path);
+                dest.set_file_name(filename);
+
+                if source != dest {
+                    move_file(source, &dest).await?;
+                    new_path = Some(dest.to_string_lossy().to_string());
+                }
+            }
+
+            let changes = PatchMedia {
+                name: body.name.as_deref(),
+                cover_path: downloaded_cover.as_deref(),
+                path: new_path.as_deref(),
+            };
+
+            if !changes.is_empty() {
+                m = changes.update(conn, m).await?;
             }
 
             let metadata = if let Some(metadata) = &body.metadata {

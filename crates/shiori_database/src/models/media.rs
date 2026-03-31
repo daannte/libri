@@ -83,3 +83,23 @@ impl NewMedia<'_> {
             .await
     }
 }
+
+/// Represents a PATCH update for the `media` table.
+#[derive(Debug, Default, AsChangeset)]
+#[diesel(table_name = media)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct PatchMedia<'a> {
+    pub name: Option<&'a str>,
+    pub cover_path: Option<&'a str>,
+    pub path: Option<&'a str>,
+}
+
+impl PatchMedia<'_> {
+    pub async fn update(&self, conn: &mut AsyncPgConnection, media: Media) -> QueryResult<Media> {
+        diesel::update(&media).set(self).get_result(conn).await
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.name.is_none() && self.cover_path.is_none()
+    }
+}
