@@ -104,10 +104,16 @@ async fn get_media(
     )
 )]
 async fn delete_media(
-    Path(_media_id): Path<i32>,
+    Path(media_id): Path<i32>,
     State(app): State<AppState>,
 ) -> APIResult<Json<()>> {
-    let mut _conn = app.db().await?;
+    let mut conn = app.db().await?;
+
+    let num_deleted = Media::delete(&mut conn, media_id).await?;
+
+    if num_deleted == 0 {
+        return Err(APIError::NotFound("Media not found".to_string()));
+    }
 
     Ok(Json(()))
 }

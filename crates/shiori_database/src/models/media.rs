@@ -59,6 +59,10 @@ impl Media {
             .first::<(Media, Option<MediaMetadata>)>(conn)
             .await
     }
+
+    pub async fn delete(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<usize> {
+        diesel::delete(media::table.find(id)).execute(conn).await
+    }
 }
 
 /// Represents a new media record insertable to the `media` table.
