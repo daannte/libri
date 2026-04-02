@@ -10,7 +10,7 @@ use serde::Deserialize;
 use shiori_api_types::{EncodableMediaWithMetadata, EncodableMetadata};
 use shiori_database::models::{Media, PatchMedia, UpdateMediaMetadata};
 use shiori_filesystem::{
-    common::move_file,
+    common::{delete_file, move_file},
     image::cover::{download_cover, get_cover},
 };
 use utoipa_axum::{router::OpenApiRouter, routes};
@@ -23,7 +23,7 @@ use crate::{
 pub fn mount() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(get_media_cover))
-        .routes(routes!(get_media, patch_media))
+        .routes(routes!(get_media, patch_media, delete_media))
 }
 
 /// Fetch media cover.
@@ -87,6 +87,34 @@ async fn get_media(
     };
 
     Ok(Json(res))
+}
+
+/// Delete a media item.
+#[utoipa::path(
+    delete,
+    path = "/media/{id}",
+    tag = "media",
+    params(
+        ("id" = i32, Path, description = "Id of the media item")
+    ),
+    responses(
+        (status = 204, description = "Successfully delete media"),
+        (status = 404, description = "Media not found"),
+        (status = 500, description = "Internal server error")
+    )
+)]
+async fn delete_media(Path(media_id): Path<i32>, State(app): State<AppState>) -> APIResult<()> {
+    let mut conn = app.db().await?;
+
+    let media = Media::delete(&mut conn, media_id).await?;
+
+    if let Some(cover_path) = media.cover_path {
+        delete_file(path::Path::new(&cover_path)).await?
+    }
+
+    delete_file(path::Path::new(&media.path)).await?;
+
+    Ok(())
 }
 
 #[derive(Default, Deserialize, utoipa::ToSchema)]

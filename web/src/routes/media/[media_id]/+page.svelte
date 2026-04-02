@@ -5,12 +5,15 @@
 		type components,
 		type operations
 	} from '@shiori/api-client';
+	import { invalidate } from '$app/navigation';
+
 	import { Button } from '$lib/components/ui/button';
 	import MetadataDialog from '$lib/components/metadata-dialog.svelte';
 
 	import Download from '@lucide/svelte/icons/download';
 	import Database from '@lucide/svelte/icons/database';
-	import { invalidate } from '$app/navigation';
+	import Trash2 from '@lucide/svelte/icons/trash-2';
+	import DeleteDialog from '$lib/components/delete-dialog.svelte';
 
 	type PatchMetadata = components['schemas']['PatchMetadata'];
 	type MetadataSearch =
@@ -20,6 +23,7 @@
 
 	let client = createClient({ fetch });
 	let isMetadataOpen = $state(false);
+	let isDeleteOpen = $state(false);
 
 	let metadataSearch = $state.raw<MetadataSearch | undefined>();
 
@@ -107,6 +111,9 @@
 				><Database /></Button
 			>
 			<Button size="icon" variant="outline"><Download /></Button>
+			<Button onclick={() => (isDeleteOpen = true)} size="icon" variant="destructive"
+				><Trash2 /></Button
+			>
 			{#if metadataSearch}
 				<Button onclick={saveMetadata}>Save</Button>
 			{/if}
@@ -123,6 +130,7 @@
 </div>
 
 <MetadataDialog bind:metadataSearch bind:isOpen={isMetadataOpen} />
+<DeleteDialog id={data.id} bind:isOpen={isDeleteOpen} />
 
 {#snippet metadata(key: string, value: string | string[] | null)}
 	<span class="text-sm font-medium sm:text-base">
