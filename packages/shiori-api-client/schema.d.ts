@@ -71,7 +71,8 @@ export interface paths {
         get: operations["get_media"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete a media item. */
+        delete: operations["delete_media"];
         options?: never;
         head?: never;
         /** Update media information. */
@@ -163,25 +164,14 @@ export interface components {
             size: number;
         };
         MediaMetadata: {
-            /**
-             * @description List of authors associated with the media item.
-             * @example [
-             *       "Asato Asato"
-             *     ]
-             */
+            /** @description List of authors associated with the media item. */
             authors: string[];
             /**
              * @description Description of the media item.
              * @example The San Magnolia Republic...
              */
             description?: string | null;
-            /**
-             * @description List of genres associated with the media item.
-             * @example [
-             *       "Light Novel",
-             *       "War"
-             *     ]
-             */
+            /** @description List of genres associated with the media item. */
             genres: string[];
             /**
              * @description International Standard Book Number (ISBN).
@@ -214,13 +204,7 @@ export interface components {
              * @example The San Magnolia Republic...
              */
             description?: string | null;
-            /**
-             * @description List of genres associated with the media item.
-             * @example [
-             *       "Light Novel",
-             *       "War"
-             *     ]
-             */
+            /** @description List of genres associated with the media item. */
             genres?: string[] | null;
             /**
              * @description International Standard Book Number (ISBN).
@@ -622,6 +606,41 @@ export interface operations {
             };
         };
     };
+    delete_media: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Id of the media item */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully delete media */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Media not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     patch_media: {
         parameters: {
             query?: never;
@@ -736,12 +755,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /**
-                         * @description List of authors associated with the media item.
-                         * @example [
-                         *       "Asato Asato"
-                         *     ]
-                         */
+                        /** @description List of authors associated with the media item. */
                         authors: string[];
                         /**
                          * @description URL of the cover image associated with the media.
@@ -753,13 +767,7 @@ export interface operations {
                          * @example The San Magnolia Republic...
                          */
                         description?: string | null;
-                        /**
-                         * @description List of genres associated with the media item.
-                         * @example [
-                         *       "Light Novel",
-                         *       "War"
-                         *     ]
-                         */
+                        /** @description List of genres associated with the media item. */
                         genres: string[];
                         /**
                          * @description International Standard Book Number (ISBN).
