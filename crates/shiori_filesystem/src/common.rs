@@ -20,7 +20,10 @@ pub struct Directory {
     pub has_children: bool,
 }
 
-pub fn list_directories(path: impl AsRef<Path>) -> std::io::Result<Vec<Directory>> {
+pub fn list_directories(
+    path: impl AsRef<Path>,
+    base_path: &PathBuf,
+) -> std::io::Result<Vec<Directory>> {
     let mut directories = Vec::new();
     let entries = sync_fs::read_dir(&path)?;
 
@@ -40,9 +43,15 @@ pub fn list_directories(path: impl AsRef<Path>) -> std::io::Result<Vec<Directory
                 Err(_) => false,
             };
 
+            let relative_path = dir_path
+                .strip_prefix(&base_path)
+                .unwrap_or(&dir_path)
+                .to_string_lossy()
+                .to_string();
+
             directories.push(Directory {
                 name: entry.file_name().to_string_lossy().to_string(),
-                path: dir_path.to_string_lossy().to_string(),
+                path: relative_path,
                 has_children,
             });
         }

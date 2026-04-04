@@ -1,5 +1,8 @@
+use std::path::PathBuf;
+
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use shiori_database::models::{Library, Media, MediaMetadata};
 use shiori_filesystem::common::Directory;
 
@@ -184,7 +187,7 @@ pub struct EncodableMetadataSearch {
 #[derive(Serialize, Deserialize, utoipa::ToSchema)]
 pub struct EncodableDirectories {
     /// Parent directory of the given path.
-    #[schema(examples("/data"))]
+    #[schema(examples(json!(null)))]
     pub parent: Option<String>,
 
     /// Immediate subdirectories of the given path.
@@ -194,15 +197,15 @@ pub struct EncodableDirectories {
 #[derive(Serialize, Deserialize, utoipa::ToSchema)]
 pub struct EncodableDirectory {
     /// Name of the directory.
-    #[schema(examples("Books"))]
+    #[schema(examples("light_novels"))]
     pub name: String,
 
-    /// Path of the directory.
-    #[schema(examples("/data/books"))]
+    /// Relative path of the directory.
+    #[schema(examples("light_novels"))]
     pub path: String,
 
     /// Whether the directory contains subfolders.
-    #[schema(examples(true))]
+    #[schema(examples(false))]
     pub has_children: bool,
 }
 

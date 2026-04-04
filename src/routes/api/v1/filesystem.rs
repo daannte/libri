@@ -15,6 +15,8 @@ pub fn mount() -> OpenApiRouter<AppState> {
 }
 
 /// List filesystem directories.
+///
+/// The provided path must be **relative** to application's base directory.
 #[utoipa::path(
     post,
     path = "/filesystem/directories/list",
@@ -22,7 +24,7 @@ pub fn mount() -> OpenApiRouter<AppState> {
     tag = "filesystem",
     responses(
         (status = 200, description = "Successfully listed directories", body = inline(EncodableDirectories)),
-        (status = 400, description = "Invalid filesystem path"),
+        (status = 400, description = "Invalid path"),
         (status = 403, description = "Access to the request path is not allowed"),
         (status = 404, description = "Directory does not exist"),
         (status = 500, description = "Internal server error")
@@ -60,7 +62,7 @@ async fn list_directories(
         )));
     }
 
-    let dirs = shiori_filesystem::common::list_directories(&path)?;
+    let dirs = shiori_filesystem::common::list_directories(&path, &app.base_path)?;
 
     let res = EncodableDirectories {
         parent: path
@@ -76,5 +78,6 @@ async fn list_directories(
 #[derive(Deserialize, utoipa::ToSchema)]
 struct FolderRequest {
     /// Path of the directory to list its subdirectories.
+    #[schema(examples(""))]
     path: String,
 }
