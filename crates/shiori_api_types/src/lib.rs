@@ -1,8 +1,5 @@
-use std::path::PathBuf;
-
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use shiori_database::models::{Library, Media, MediaMetadata};
 use shiori_filesystem::common::Directory;
 

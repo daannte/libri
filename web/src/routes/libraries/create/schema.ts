@@ -8,7 +8,4 @@ export const librarySchema = z.object({
   path: z
     .string()
     .min(1, "Path is required")
-    .refine((p) => p.startsWith("/"), {
-      message: "Path must be absolute"
-    })
 })

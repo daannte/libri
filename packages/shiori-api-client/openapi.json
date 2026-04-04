@@ -9,6 +9,84 @@
     "version": "0.0.0"
   },
   "paths": {
+    "/api/v1/filesystem/directories/list": {
+      "post": {
+        "tags": [
+          "filesystem"
+        ],
+        "summary": "List filesystem directories.",
+        "description": "The provided path must be **relative** to application's base directory.",
+        "operationId": "list_directories",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "path"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Path of the directory to list its subdirectories.",
+                    "examples": [
+                      ""
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully listed directories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "directories"
+                  ],
+                  "properties": {
+                    "directories": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EncodableDirectory"
+                      },
+                      "description": "Immediate subdirectories of the given path."
+                    },
+                    "parent": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Parent directory of the given path.",
+                      "examples": [
+                        null
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid path"
+          },
+          "403": {
+            "description": "Access to the request path is not allowed"
+          },
+          "404": {
+            "description": "Directory does not exist"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/api/v1/libraries": {
       "get": {
         "tags": [
@@ -820,6 +898,37 @@
   },
   "components": {
     "schemas": {
+      "EncodableDirectory": {
+        "type": "object",
+        "required": [
+          "name",
+          "path",
+          "has_children"
+        ],
+        "properties": {
+          "has_children": {
+            "type": "boolean",
+            "description": "Whether the directory contains subfolders.",
+            "examples": [
+              false
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the directory.",
+            "examples": [
+              "light_novels"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "Relative path of the directory.",
+            "examples": [
+              "light_novels"
+            ]
+          }
+        }
+      },
       "Media": {
         "type": "object",
         "required": [
