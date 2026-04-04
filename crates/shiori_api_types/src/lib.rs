@@ -1,6 +1,7 @@
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use shiori_database::models::{Library, Media, MediaMetadata};
+use shiori_filesystem::common::Directory;
 
 #[derive(Serialize, Deserialize, utoipa::ToSchema)]
 #[schema(as = Library)]
@@ -178,4 +179,39 @@ pub struct EncodableMetadataSearch {
     /// List of genres associated with the media item.
     #[schema(examples(json!(["Light Novel", "War"])))]
     pub genres: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, utoipa::ToSchema)]
+pub struct EncodableDirectories {
+    /// Parent directory of the given path.
+    #[schema(examples("/data"))]
+    pub parent: Option<String>,
+
+    /// Immediate subdirectories of the given path.
+    pub directories: Vec<EncodableDirectory>,
+}
+
+#[derive(Serialize, Deserialize, utoipa::ToSchema)]
+pub struct EncodableDirectory {
+    /// Name of the directory.
+    #[schema(examples("Books"))]
+    pub name: String,
+
+    /// Path of the directory.
+    #[schema(examples("/data/books"))]
+    pub path: String,
+
+    /// Whether the directory contains subfolders.
+    #[schema(examples(true))]
+    pub has_children: bool,
+}
+
+impl From<Directory> for EncodableDirectory {
+    fn from(dir: Directory) -> Self {
+        Self {
+            name: dir.name,
+            path: dir.path,
+            has_children: dir.has_children,
+        }
+    }
 }
