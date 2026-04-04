@@ -1,6 +1,6 @@
 use std::path;
 
-use axum::Json;
+use axum::{Json, extract::State};
 use serde::Deserialize;
 use shiori_api_types::{EncodableDirectories, EncodableDirectory};
 use utoipa_axum::{router::OpenApiRouter, routes};
@@ -23,23 +23,34 @@ pub fn mount() -> OpenApiRouter<AppState> {
     responses(
         (status = 200, description = "Successfully listed directories", body = inline(EncodableDirectories)),
         (status = 400, description = "Invalid filesystem path"),
+        (status = 403, description = "Access to the request path is not allowed"),
         (status = 404, description = "Directory does not exist"),
         (status = 500, description = "Internal server error")
     )
 )]
 async fn list_directories(
+    State(app): State<AppState>,
     Json(body): Json<FolderRequest>,
 ) -> APIResult<Json<EncodableDirectories>> {
-    let path = path::Path::new(&body.path);
+    let requested_path = path::Path::new(&body.path);
+
+    if requested_path.is_absolute() {
+        return Err(APIError::BadRequest(
+            "Absolute paths not allowed".to_string(),
+        ));
+    }
+
+    let path = app.base_path.join(requested_path).canonicalize()?;
+
+    if !path.starts_with(&app.base_path) {
+        return Err(APIError::Forbidden(
+            "Access to the requested path is not allowed".to_string(),
+        ));
+    }
 
     if !path.exists() {
         return Err(APIError::NotFound(format!(
             "Directory does not exist: {}",
-            path.display()
-        )));
-    } else if !path.is_absolute() {
-        return Err(APIError::BadRequest(format!(
-            "Path must be absolute: {}",
             path.display()
         )));
     } else if !path.is_dir() {
@@ -49,10 +60,13 @@ async fn list_directories(
         )));
     }
 
-    let dirs = shiori_filesystem::common::list_directories(path)?;
+    let dirs = shiori_filesystem::common::list_directories(&path)?;
 
     let res = EncodableDirectories {
-        parent: path.parent().map(|p| p.to_string_lossy().to_string()),
+        parent: path
+            .parent()
+            .and_then(|p| p.strip_prefix(&app.base_path).ok())
+            .map(|p| p.to_string_lossy().to_string()),
         directories: dirs.into_iter().map(EncodableDirectory::from).collect(),
     };
 
