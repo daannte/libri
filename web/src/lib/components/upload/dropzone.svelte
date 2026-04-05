@@ -12,8 +12,8 @@
 
 	function addFiles(newFiles: FileList) {
 		const fileArray = Array.from(newFiles);
-		const existing = new Set(files.map((f) => f.name + f.size));
-		const filtered = fileArray.filter((f) => !existing.has(f.name + f.size));
+		const existing = new Set(files.map((f) => f.name));
+		const filtered = fileArray.filter((f) => !existing.has(f.name));
 		files = [...files, ...filtered];
 	}
 
