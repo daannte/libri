@@ -1,5 +1,6 @@
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use shiori_database::models::{Library, Media, MediaMetadata};
 
 #[derive(Serialize, Deserialize, utoipa::ToSchema)]
@@ -147,7 +148,7 @@ pub struct EncodableMetadataSearch {
     pub title: String,
 
     /// List of authors associated with the media item.
-    #[schema(examples(json!(["Asato Asato"])))]
+    #[schema(examples("Asato Asato"))]
     pub authors: Vec<String>,
 
     /// Name of the publisher or publishing organization.
@@ -176,6 +177,17 @@ pub struct EncodableMetadataSearch {
     pub description: Option<String>,
 
     /// List of genres associated with the media item.
-    #[schema(examples(json!(["Light Novel", "War"])))]
+    #[schema(examples("War"))]
     pub genres: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, utoipa::ToSchema)]
+pub struct EncodableDirectories {
+    /// Parent directory of the given path.
+    #[schema(examples(json!(null)), required)]
+    pub parent: Option<String>,
+
+    /// Immediate subdirectories of the given path.
+    #[schema(examples("light_novels"))]
+    pub directories: Vec<String>,
 }

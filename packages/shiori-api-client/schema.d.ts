@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+    "/api/v1/filesystem/directories/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * List filesystem directories.
+         * @description The provided path must be **relative** to application's base directory.
+         */
+        post: operations["list_directories"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/libraries": {
         parameters: {
             query?: never;
@@ -14,28 +34,11 @@ export interface paths {
         /** List all libraries. */
         get: operations["list_libraries"];
         put?: never;
-        /** Create a new library. */
-        post: operations["create_library"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/libraries/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
         /**
-         * Fetch library.
-         * @description Not implemented
+         * Create a new library.
+         * @description The directory must already exist on the system.
          */
-        get: operations["get_library"];
-        put?: never;
-        post?: never;
+        post: operations["create_library"];
         delete?: never;
         options?: never;
         head?: never;
@@ -238,6 +241,72 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_directories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description Path of the directory to list its subdirectories.
+                     * @example
+                     */
+                    path: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successfully listed directories */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Immediate subdirectories of the given path. */
+                        directories: string[];
+                        /**
+                         * @description Parent directory of the given path.
+                         * @example null
+                         */
+                        parent: string | null;
+                    };
+                };
+            };
+            /** @description Invalid path */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Access to the request path is not allowed */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Directory does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     list_libraries: {
         parameters: {
             query?: never;
@@ -298,9 +367,15 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    /** @description Name of the library. */
+                    /**
+                     * @description Name of the library.
+                     * @example Light Novels
+                     */
                     name: string;
-                    /** @description File system path to the library's directory. */
+                    /**
+                     * @description File system path to the library's directory, relative to the application's base directory.
+                     * @example light_novels
+                     */
                     path: string;
                 };
             };
@@ -340,41 +415,6 @@ export interface operations {
             };
             /** @description Invalid request body */
             400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    get_library: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Id of the library */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successfully fetched library */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Library not found */
-            404: {
                 headers: {
                     [name: string]: unknown;
                 };

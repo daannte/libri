@@ -198,14 +198,17 @@ async fn patch_media(
 ) -> APIResult<Json<EncodableMediaWithMetadata>> {
     let mut conn = app.db().await?;
 
-    let downloaded_cover =
-        if let Some(cover_url) = &body.cover_url {
-            Some(download_cover(cover_url).await.map_err(|_| {
-                APIError::InternalServerError("Failed to download cover".to_string())
-            })?)
-        } else {
-            None
-        };
+    let downloaded_cover = if let Some(cover_url) = &body.cover_url {
+        Some(
+            download_cover(cover_url, &app.base_path)
+                .await
+                .map_err(|_| {
+                    APIError::InternalServerError("Failed to download cover".to_string())
+                })?,
+        )
+    } else {
+        None
+    };
 
     conn.transaction(|conn| {
         async move {

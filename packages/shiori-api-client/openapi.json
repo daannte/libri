@@ -9,6 +9,88 @@
     "version": "0.0.0"
   },
   "paths": {
+    "/api/v1/filesystem/directories/list": {
+      "post": {
+        "tags": [
+          "filesystem"
+        ],
+        "summary": "List filesystem directories.",
+        "description": "The provided path must be **relative** to application's base directory.",
+        "operationId": "list_directories",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "path"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Path of the directory to list its subdirectories.",
+                    "examples": [
+                      ""
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully listed directories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "parent",
+                    "directories"
+                  ],
+                  "properties": {
+                    "directories": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "examples": [
+                          "light_novels"
+                        ]
+                      },
+                      "description": "Immediate subdirectories of the given path."
+                    },
+                    "parent": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Parent directory of the given path.",
+                      "examples": [
+                        null
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid path"
+          },
+          "403": {
+            "description": "Access to the request path is not allowed"
+          },
+          "404": {
+            "description": "Directory does not exist"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/api/v1/libraries": {
       "get": {
         "tags": [
@@ -78,6 +160,7 @@
           "library"
         ],
         "summary": "Create a new library.",
+        "description": "The directory must already exist on the system.",
         "operationId": "create_library",
         "requestBody": {
           "content": {
@@ -91,11 +174,17 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "description": "Name of the library."
+                    "description": "Name of the library.",
+                    "examples": [
+                      "Light Novels"
+                    ]
                   },
                   "path": {
                     "type": "string",
-                    "description": "File system path to the library's directory."
+                    "description": "File system path to the library's directory, relative to the application's base directory.",
+                    "examples": [
+                      "light_novels"
+                    ]
                   }
                 }
               }
@@ -154,39 +243,6 @@
           },
           "400": {
             "description": "Invalid request body"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/v1/libraries/{id}": {
-      "get": {
-        "tags": [
-          "library"
-        ],
-        "summary": "Fetch library.",
-        "description": "Not implemented",
-        "operationId": "get_library",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Id of the library",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully fetched library"
-          },
-          "404": {
-            "description": "Library not found"
           },
           "500": {
             "description": "Internal server error"
@@ -715,9 +771,7 @@
                       "items": {
                         "type": "string",
                         "examples": [
-                          [
-                            "Asato Asato"
-                          ]
+                          "Asato Asato"
                         ]
                       },
                       "description": "List of authors associated with the media item."
@@ -747,10 +801,7 @@
                       "items": {
                         "type": "string",
                         "examples": [
-                          [
-                            "Light Novel",
-                            "War"
-                          ]
+                          "War"
                         ]
                       },
                       "description": "List of genres associated with the media item."
