@@ -2,7 +2,7 @@ use std::path;
 
 use axum::{Json, extract::State};
 use serde::Deserialize;
-use shiori_api_types::{EncodableDirectories, EncodableDirectory};
+use shiori_api_types::EncodableDirectories;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{
@@ -61,7 +61,7 @@ async fn list_directories(
             .parent()
             .and_then(|p| p.strip_prefix(&app.base_path).ok())
             .map(|p| p.to_string_lossy().to_string()),
-        directories: dirs.into_iter().map(EncodableDirectory::from).collect(),
+        directories: dirs,
     };
 
     Ok(Json(res))

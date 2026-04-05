@@ -225,7 +225,7 @@ async fn create_library_media(
             ));
         }
 
-        let cover_path = Epub::get_cover_path(file_stem, f.contents.path());
+        let cover_path = Epub::get_cover_path(file_stem, f.contents.path(), &app.base_path);
 
         let new_media = NewMedia {
             name: file_stem,

@@ -47,13 +47,17 @@
                 "schema": {
                   "type": "object",
                   "required": [
+                    "parent",
                     "directories"
                   ],
                   "properties": {
                     "directories": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/EncodableDirectory"
+                        "type": "string",
+                        "examples": [
+                          "light_novels"
+                        ]
                       },
                       "description": "Immediate subdirectories of the given path."
                     },
@@ -156,6 +160,7 @@
           "library"
         ],
         "summary": "Create a new library.",
+        "description": "The directory must already exist on the system.",
         "operationId": "create_library",
         "requestBody": {
           "content": {
@@ -169,11 +174,17 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "description": "Name of the library."
+                    "description": "Name of the library.",
+                    "examples": [
+                      "Light Novels"
+                    ]
                   },
                   "path": {
                     "type": "string",
-                    "description": "File system path to the library's directory."
+                    "description": "File system path to the library's directory, relative to the application's base directory.",
+                    "examples": [
+                      "light_novels"
+                    ]
                   }
                 }
               }
@@ -232,39 +243,6 @@
           },
           "400": {
             "description": "Invalid request body"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/v1/libraries/{id}": {
-      "get": {
-        "tags": [
-          "library"
-        ],
-        "summary": "Fetch library.",
-        "description": "Not implemented",
-        "operationId": "get_library",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Id of the library",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully fetched library"
-          },
-          "404": {
-            "description": "Library not found"
           },
           "500": {
             "description": "Internal server error"
@@ -793,9 +771,7 @@
                       "items": {
                         "type": "string",
                         "examples": [
-                          [
-                            "Asato Asato"
-                          ]
+                          "Asato Asato"
                         ]
                       },
                       "description": "List of authors associated with the media item."
@@ -825,10 +801,7 @@
                       "items": {
                         "type": "string",
                         "examples": [
-                          [
-                            "Light Novel",
-                            "War"
-                          ]
+                          "War"
                         ]
                       },
                       "description": "List of genres associated with the media item."
@@ -898,37 +871,6 @@
   },
   "components": {
     "schemas": {
-      "EncodableDirectory": {
-        "type": "object",
-        "required": [
-          "name",
-          "path",
-          "has_children"
-        ],
-        "properties": {
-          "has_children": {
-            "type": "boolean",
-            "description": "Whether the directory contains subfolders.",
-            "examples": [
-              false
-            ]
-          },
-          "name": {
-            "type": "string",
-            "description": "Name of the directory.",
-            "examples": [
-              "light_novels"
-            ]
-          },
-          "path": {
-            "type": "string",
-            "description": "Relative path of the directory.",
-            "examples": [
-              "light_novels"
-            ]
-          }
-        }
-      },
       "Media": {
         "type": "object",
         "required": [

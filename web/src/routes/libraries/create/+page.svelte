@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { createClient, type components } from '@shiori/api-client';
-	import { librarySchema } from './schema';
+	import { createClient } from '@shiori/api-client';
 
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -11,41 +10,28 @@
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import Folder from '@lucide/svelte/icons/folder';
 
-	type Directory = components['schemas']['EncodableDirectory'];
-
 	let client = createClient({ fetch });
 
 	let { data } = $props();
 	let dirs = $derived(data.directories);
 	let parent = $derived(data.parent);
 
+	let path = $state<string | null>(null);
+	let selectedPath = $state<string | null>(null);
+
 	let name = $state('');
-	let directory = $state<Directory | undefined>();
 	let isFolderPickerOpen = $state(false);
 
 	let loading = $state(false);
-	let errors = $state<Record<string, string>>({});
 
 	async function handleSubmit() {
-		errors = {};
-
-		if (!directory) return;
-
-		const result = librarySchema.safeParse({ name, path: directory.path });
-
-		if (!result.success) {
-			for (const err of result.error.issues) {
-				const key = err.path[0] as string;
-				errors[key] = err.message;
-			}
-			return;
-		}
+		if (!selectedPath || !name) return;
 
 		loading = true;
 
 		try {
 			const res = await client.POST('/api/v1/libraries', {
-				body: result.data
+				body: { path: selectedPath, name }
 			});
 			if (!res.response.ok) throw new Error('Failed to create library');
 			goto('/', { invalidate: ['libraries:create'] });
@@ -57,10 +43,11 @@
 	}
 
 	async function updateDirs() {
-		if (!directory || !directory.has_children) return;
+		if (!isFolderPickerOpen) return;
+
 		try {
 			const res = await client.POST('/api/v1/filesystem/directories/list', {
-				body: { path: directory.path }
+				body: { path: path ? path : '' }
 			});
 			if (!res.data || res.error) throw new Error('Failed to update directories');
 
@@ -81,20 +68,17 @@
 		<div class="grid gap-1">
 			<Label for="name">Name</Label>
 			<Input id="name" name="name" placeholder="Novels" bind:value={name} />
-			{#if errors.name}
-				<p class="text-sm text-destructive">{errors.name}</p>
-			{/if}
 		</div>
-		<div class="grid gap-1">
-			<Label>Add Path</Label>
+		<div class="flex items-center gap-2 rounded-md border border-border bg-background p-2">
+			<div class="flex-1">
+				<p class="mt-1 truncate text-sm">
+					{selectedPath ? `/${selectedPath}` : 'No path selected'}
+				</p>
+			</div>
 
 			<Button size="icon" variant="outline" onclick={() => (isFolderPickerOpen = true)}>
 				<Folder />
 			</Button>
-
-			{#if errors.path}
-				<p class="text-sm text-destructive">{errors.path}</p>
-			{/if}
 		</div>
 
 		<Button type="submit" disabled={loading}>
@@ -107,4 +91,4 @@
 	</div>
 </form>
 
-<FolderPicker {dirs} {parent} bind:isOpen={isFolderPickerOpen} bind:directory />
+<FolderPicker {dirs} {parent} bind:isOpen={isFolderPickerOpen} bind:path bind:selectedPath />

@@ -2260,7 +2260,6 @@ dependencies = [
  "serde",
  "serde_json",
  "shiori_database",
- "shiori_filesystem",
  "utoipa",
 ]
 

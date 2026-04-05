@@ -1,11 +1,7 @@
 <script lang="ts">
-	import { type components } from '@shiori/api-client';
-
-	type Directory = components['schemas']['EncodableDirectory'];
-
 	interface Props {
-		dir: Directory;
-		onclick: (d: Directory) => void;
+		dir: string;
+		onclick: (p: string) => void;
 	}
 
 	let { dir, onclick }: Props = $props();
@@ -18,6 +14,7 @@
 	onclick={() => onclick(dir)}
 	onkeydown={(e) => e.key === 'Enter' && onclick(dir)}
 >
-	<span class="font-semibold">{dir.name}</span>
-	<span class="text-xs text-muted-foreground">/{dir.path}</span>
+	<div class="flex items-center justify-between">
+		<span class="font-medium">/{dir}</span>
+	</div>
 </div>
