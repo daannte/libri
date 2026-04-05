@@ -4,7 +4,9 @@ import { error } from "@sveltejs/kit";
 
 type LibraryMediaResponse = operations["list_library_media"]["responses"]["200"]["content"]["application/json"]
 
-export const load: PageLoad = async ({ fetch, params }) => {
+export const load: PageLoad = async ({ fetch, params, depends }) => {
+  depends("libraries:media")
+
   let client = createClient({ fetch })
 
   const libraryId = parseInt(params.library_id)
@@ -14,7 +16,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
 
   let libraryMedia = await loadLibraryMedia(client, libraryId)
 
-  return { media: libraryMedia }
+  return { media: libraryMedia, libraryId }
 };
 
 function loadLibraryMediaError(status: number): never {

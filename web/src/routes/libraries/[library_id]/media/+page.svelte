@@ -11,26 +11,24 @@
 	let isUploadOpen = $state(false);
 </script>
 
-<div class="flex">
-	{#if data.media.length > 0}
-		<div
-			class="grid w-full grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
-		>
-			{#each data.media as media (media.id)}
-				<MediaCard {media} />
-			{/each}
-		</div>
-	{:else}
-		<EmptyView
-			title="No media found"
-			description="Upload your favorite media to get started"
-			icon={BookText}
-		>
-			{#snippet content()}
-				<Button size="lg" onclick={() => (isUploadOpen = true)}>Upload Files</Button>
-			{/snippet}
-		</EmptyView>
-	{/if}
-</div>
+{#if data.media.length > 0}
+	<div
+		class="grid w-full grid-cols-2 gap-6 p-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+	>
+		{#each data.media as media (media.id)}
+			<MediaCard {media} />
+		{/each}
+	</div>
+{:else}
+	<EmptyView
+		title="No media found"
+		description="Upload your favorite media to get started"
+		icon={BookText}
+	>
+		{#snippet content()}
+			<Button size="lg" onclick={() => (isUploadOpen = true)}>Upload Files</Button>
+		{/snippet}
+	</EmptyView>
+{/if}
 
-<UploadDialog bind:isOpen={isUploadOpen} />
+<UploadDialog id={data.libraryId} bind:isOpen={isUploadOpen} />

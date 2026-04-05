@@ -6,19 +6,39 @@
 
 	import FilesList from './files-list.svelte';
 	import Dropzone from './dropzone.svelte';
+	import { invalidate } from '$app/navigation';
 
 	interface Props {
+		id: number;
 		isOpen: boolean;
 	}
 
 	let client = createClient({ fetch });
 
-	let { isOpen = $bindable() }: Props = $props();
+	let { id, isOpen = $bindable() }: Props = $props();
 
 	let files = $state<File[]>([]);
 
 	async function uploadFiles() {
 		if (!files.length) return;
+
+		const formData = new FormData();
+		files.forEach((f) => {
+			formData.append('files', f);
+		});
+
+		try {
+			let res = await client.POST('/api/v1/libraries/{id}/media', {
+				params: { path: { id } },
+				// @ts-ignore
+				body: formData
+			});
+			if (!res.data || res.error) throw new Error('Failed to upload files: ', res.error);
+			isOpen = false;
+			invalidate('libraries:media');
+		} catch (e) {
+			console.error(e);
+		}
 	}
 </script>
 
