@@ -30,6 +30,24 @@
 
 	let loading = $state(false);
 
+	async function getMetadata(id: number) {
+		if (!id) return;
+
+		loading = true;
+		try {
+			let res = await client.GET('/api/v1/metadata/book', {
+				params: { query: { q: id.toString() } }
+			});
+			if (res.error || !res.data) throw new Error('Failed to get book metadata');
+			metadataSearch = res.data;
+			isOpen = false;
+		} catch (e) {
+			console.error('Failed book search: ', e);
+		} finally {
+			loading = false;
+		}
+	}
+
 	async function search() {
 		if (!author || !title) {
 			return;
@@ -71,8 +89,9 @@
 
 		<div class="mt-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 			{#each books as book}
-				<div
-					class="flex transform flex-row gap-2 transition duration-300 hover:scale-105 md:max-h-48"
+				<button
+					onclick={() => getMetadata(book.provider_id)}
+					class="flex transform cursor-pointer flex-row gap-2 text-left transition duration-300 hover:scale-105 md:max-h-48"
 				>
 					<img class="h-full rounded-lg object-cover" src={book.cover_url} alt="Book Cover" />
 
@@ -85,7 +104,7 @@
 							{@html book.description || 'No description available.'}
 						</p>
 					</div>
-				</div>
+				</button>
 			{/each}
 		</div>
 

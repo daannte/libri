@@ -767,7 +767,8 @@ expression: newest.to_pretty_json().unwrap()
                   "required": [
                     "title",
                     "authors",
-                    "genres"
+                    "genres",
+                    "provider_id"
                   ],
                   "properties": {
                     "authors": {
@@ -829,6 +830,15 @@ expression: newest.to_pretty_json().unwrap()
                       "examples": [
                         "English"
                       ]
+                    },
+                    "provider_id": {
+                      "type": "integer",
+                      "format": "int32",
+                      "description": "Provider id of the media item.",
+                      "examples": [
+                        41825371
+                      ],
+                      "minimum": 0
                     },
                     "published_at": {
                       "type": [
@@ -920,7 +930,8 @@ expression: newest.to_pretty_json().unwrap()
                     "required": [
                       "title",
                       "authors",
-                      "genres"
+                      "genres",
+                      "provider_id"
                     ],
                     "properties": {
                       "authors": {
@@ -982,6 +993,15 @@ expression: newest.to_pretty_json().unwrap()
                         "examples": [
                           "English"
                         ]
+                      },
+                      "provider_id": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Provider id of the media item.",
+                        "examples": [
+                          41825371
+                        ],
+                        "minimum": 0
                       },
                       "published_at": {
                         "type": [

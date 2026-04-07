@@ -838,6 +838,12 @@ export interface operations {
                          */
                         language?: string | null;
                         /**
+                         * Format: int32
+                         * @description Provider id of the media item.
+                         * @example 41825371
+                         */
+                        provider_id: number;
+                        /**
                          * Format: date
                          * @description Date the media was published.
                          * @example 2019-03-26
@@ -923,6 +929,12 @@ export interface operations {
                          * @example English
                          */
                         language?: string | null;
+                        /**
+                         * Format: int32
+                         * @description Provider id of the media item.
+                         * @example 41825371
+                         */
+                        provider_id: number;
                         /**
                          * Format: date
                          * @description Date the media was published.
