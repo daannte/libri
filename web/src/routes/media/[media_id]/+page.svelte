@@ -8,7 +8,7 @@
 	import { invalidate } from '$app/navigation';
 
 	import { Button } from '$lib/components/ui/button';
-	import MetadataDialog from '$lib/components/metadata-dialog.svelte';
+	import MetadataDialog from '$lib/components/metadata/metadata-dialog.svelte';
 
 	import Download from '@lucide/svelte/icons/download';
 	import Database from '@lucide/svelte/icons/database';
@@ -17,7 +17,7 @@
 
 	type PatchMetadata = components['schemas']['PatchMetadata'];
 	type MetadataSearch =
-		operations['search_metadata']['responses']['200']['content']['application/json'];
+		operations['get_book_metadata']['responses']['200']['content']['application/json'];
 
 	let { data } = $props();
 
@@ -75,8 +75,6 @@
 			console.error('Failed to save metadata: ', e);
 		}
 	}
-
-	$inspect(metadataSearch);
 </script>
 
 <div class="flex h-screen flex-col xl:flex-row">
@@ -122,21 +120,17 @@
 		<div class="my-4 border-t-2"></div>
 
 		<div class="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-[auto_1fr_auto_1fr] sm:gap-x-8">
-			{#each metadataArr as [label, value]}
-				{@render metadata(label, value)}
+			{#each metadataArr as [label, value] (label)}
+				<span class="text-sm font-medium sm:text-base">
+					{labelize(label)}
+				</span>
+				<span class="text-sm wrap-break-word text-muted-foreground sm:text-base">
+					{formatValue(label, value)}
+				</span>
 			{/each}
 		</div>
 	</div>
 </div>
 
-<MetadataDialog bind:metadataSearch bind:isOpen={isMetadataOpen} />
+<MetadataDialog bind:metadataSearch bind:isOpen={isMetadataOpen} name={data.name} />
 <DeleteDialog id={data.id} bind:isOpen={isDeleteOpen} />
-
-{#snippet metadata(key: string, value: string | string[] | null)}
-	<span class="text-sm font-medium sm:text-base">
-		{labelize(key)}
-	</span>
-	<span class="text-sm wrap-break-word text-muted-foreground sm:text-base">
-		{formatValue(key, value)}
-	</span>
-{/snippet}

@@ -9,6 +9,7 @@
 
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import Folder from '@lucide/svelte/icons/folder';
+	import { resolve } from '$app/paths';
 
 	let client = createClient({ fetch });
 
@@ -34,7 +35,7 @@
 				body: { path: selectedPath, name }
 			});
 			if (!res.response.ok) throw new Error('Failed to create library');
-			goto('/', { invalidate: ['libraries:create'] });
+			goto(resolve('/'), { invalidate: ['libraries:create'] });
 		} catch (error) {
 			console.error(error);
 		} finally {

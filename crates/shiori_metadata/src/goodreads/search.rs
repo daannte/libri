@@ -1,0 +1,74 @@
+use scraper::{ElementRef, Selector};
+
+use crate::provider::{MetadataProvider, MetadataResult};
+use crate::{goodreads::parsing::fetch_doc, provider::BooksParams};
+
+const BOOK_LIMIT: usize = 3;
+
+pub async fn search_books(params: BooksParams) -> MetadataResult<Vec<String>> {
+    let url = format!(
+        "{}{}",
+        super::GoodreadsProvider::SEARCH_URL,
+        params.as_query_string()
+    );
+
+    let document = fetch_doc(&url).await?;
+    let selector = Selector::parse("table.tableList").unwrap();
+
+    let table = match document.select(&selector).next() {
+        Some(table) => table,
+        None => return Ok(Vec::new()),
+    };
+
+    let row_selector = Selector::parse("tr[itemtype='http://schema.org/Book']").unwrap();
+
+    let books = table.select(&row_selector).take(BOOK_LIMIT);
+
+    let mut res = Vec::new();
+
+    for book in books {
+        // TODO: some sort of fuzzy/scoring system
+        // to pick good books with authors and title
+        res.push(extract_id(book));
+    }
+
+    Ok(res)
+}
+
+fn extract_id(book: ElementRef<'_>) -> String {
+    let id_selector = Selector::parse("div[id]").unwrap();
+
+    book.select(&id_selector)
+        .next()
+        .and_then(|div| div.value().attr("id"))
+        .map(|s| s.trim().to_string())
+        .unwrap_or_default()
+}
+
+fn _extract_title(book: ElementRef<'_>) -> String {
+    let title_selector = Selector::parse("a[title]").unwrap();
+
+    book.select(&title_selector)
+        .next()
+        .and_then(|e| e.value().attr("title"))
+        .map(|s| s.trim().to_string())
+        .unwrap_or_default()
+}
+
+fn _extract_authors(book: ElementRef<'_>) -> Vec<String> {
+    let author_selector = Selector::parse("a.authorName").unwrap();
+
+    book.select(&author_selector)
+        .filter_map(|e| e.text().next().map(|a| a.trim().to_string()))
+        .collect()
+}
+
+fn _extract_cover_url(book: ElementRef<'_>) -> Option<String> {
+    let img_selector = Selector::parse("img").unwrap();
+
+    book.select(&img_selector)
+        .next()?
+        .value()
+        .attr("src")
+        .map(String::from)
+}

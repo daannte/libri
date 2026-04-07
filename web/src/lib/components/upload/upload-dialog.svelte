@@ -30,7 +30,7 @@
 		try {
 			let res = await client.POST('/api/v1/libraries/{id}/media', {
 				params: { path: { id } },
-				// @ts-ignore
+				// @ts-expect-error need to use `FormData` to send files
 				body: formData
 			});
 			if (!res.data || res.error) throw new Error('Failed to upload files: ', res.error);

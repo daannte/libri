@@ -178,6 +178,10 @@ pub struct EncodableMetadataSearch {
     /// List of genres associated with the media item.
     #[schema(examples("War"))]
     pub genres: Vec<String>,
+
+    /// Provider id of the media item.
+    #[schema(examples(41825371))]
+    pub provider_id: u32,
 }
 
 #[derive(Serialize, Deserialize, utoipa::ToSchema)]
