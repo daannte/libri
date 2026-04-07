@@ -180,25 +180,6 @@ pub struct EncodableMetadataSearch {
     pub genres: Vec<String>,
 }
 
-#[derive(Default, Serialize, Deserialize, utoipa::ToSchema)]
-pub struct EncodableBookSearch {
-    /// Title of the media item.
-    #[schema(examples("86—EIGHTY-SIX, Vol. 1"))]
-    pub title: String,
-
-    /// List of authors associated with the media item.
-    #[schema(examples("Asato Asato"))]
-    pub authors: Vec<String>,
-
-    /// Provider id of the media.
-    #[schema(examples(41825371))]
-    pub id: i32,
-
-    /// URL of the cover image associated with the media.
-    #[schema(examples("https://example.com/cover.jpg"))]
-    pub cover_url: Option<String>,
-}
-
 #[derive(Serialize, Deserialize, utoipa::ToSchema)]
 pub struct EncodableDirectories {
     /// Parent directory of the given path.

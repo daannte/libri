@@ -1,6 +1,6 @@
 use axum::{Json, extract::Query};
 use serde::Deserialize;
-use shiori_api_types::{EncodableBookSearch, EncodableMetadataSearch};
+use shiori_api_types::EncodableMetadataSearch;
 use shiori_metadata::{
     GoodreadsProvider,
     provider::{BooksParams, MetadataProvider},
@@ -16,7 +16,7 @@ use crate::{
 pub fn mount() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(search_books))
-        .routes(routes!(get_book))
+        .routes(routes!(get_book_metadata))
 }
 
 /// Search for book metadata.
@@ -31,7 +31,7 @@ pub fn mount() -> OpenApiRouter<AppState> {
         (status = 500, description = "Internal server error")
     )
 )]
-async fn get_book(
+async fn get_book_metadata(
     Query(params): Query<ListQueryParams>,
 ) -> APIResult<Json<EncodableMetadataSearch>> {
     let metadata = match params.provider.as_str() {
@@ -61,14 +61,14 @@ struct ListQueryParams {
     params(BookQueryParams),
     tag = "metadata",
     responses(
-        (status = 200, description = "Successfully found books", body=inline(Vec<EncodableBookSearch>)),
+        (status = 200, description = "Successfully found books", body=inline(Vec<EncodableMetadataSearch>)),
         (status = 400, description = "Invalid query parameters"),
         (status = 500, description = "Internal server error")
     )
 )]
 async fn search_books(
     Query(params): Query<BookQueryParams>,
-) -> APIResult<Json<Vec<EncodableBookSearch>>> {
+) -> APIResult<Json<Vec<EncodableMetadataSearch>>> {
     let books = match params.provider.as_str() {
         "goodreads" => GoodreadsProvider::search_books(params.into()).await?,
         _ => return Err(APIError::BadRequest("Unknown provider".to_string())),

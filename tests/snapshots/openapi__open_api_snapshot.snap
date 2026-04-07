@@ -736,7 +736,7 @@ expression: newest.to_pretty_json().unwrap()
           "metadata"
         ],
         "summary": "Search for book metadata.",
-        "operationId": "get_book",
+        "operationId": "get_book_metadata",
         "parameters": [
           {
             "name": "q",
@@ -920,7 +920,7 @@ expression: newest.to_pretty_json().unwrap()
                     "required": [
                       "title",
                       "authors",
-                      "id"
+                      "genres"
                     ],
                     "properties": {
                       "authors": {
@@ -943,12 +943,65 @@ expression: newest.to_pretty_json().unwrap()
                           "https://example.com/cover.jpg"
                         ]
                       },
-                      "id": {
-                        "type": "integer",
-                        "format": "int32",
-                        "description": "Provider id of the media.",
+                      "description": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "Description of the media item.",
                         "examples": [
-                          41825371
+                          "The San Magnolia Republic..."
+                        ]
+                      },
+                      "genres": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "examples": [
+                            "War"
+                          ]
+                        },
+                        "description": "List of genres associated with the media item."
+                      },
+                      "isbn": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "International Standard Book Number (ISBN).\nTypically used for books.",
+                        "examples": [
+                          "1975303121"
+                        ]
+                      },
+                      "language": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "Language of the media content.",
+                        "examples": [
+                          "English"
+                        ]
+                      },
+                      "published_at": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "date",
+                        "description": "Date the media was published.",
+                        "examples": [
+                          "2019-03-26"
+                        ]
+                      },
+                      "publisher": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "Name of the publisher or publishing organization.",
+                        "examples": [
+                          "Yen On"
                         ]
                       },
                       "title": {

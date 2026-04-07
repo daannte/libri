@@ -107,7 +107,7 @@ export interface paths {
             cookie?: never;
         };
         /** Search for book metadata. */
-        get: operations["get_book"];
+        get: operations["get_book_metadata"];
         put?: never;
         post?: never;
         delete?: never;
@@ -788,7 +788,7 @@ export interface operations {
             };
         };
     };
-    get_book: {
+    get_book_metadata: {
         parameters: {
             query: {
                 /** @description A search query string. */
@@ -906,11 +906,34 @@ export interface operations {
                          */
                         cover_url?: string | null;
                         /**
-                         * Format: int32
-                         * @description Provider id of the media.
-                         * @example 41825371
+                         * @description Description of the media item.
+                         * @example The San Magnolia Republic...
                          */
-                        id: number;
+                        description?: string | null;
+                        /** @description List of genres associated with the media item. */
+                        genres: string[];
+                        /**
+                         * @description International Standard Book Number (ISBN).
+                         *     Typically used for books.
+                         * @example 1975303121
+                         */
+                        isbn?: string | null;
+                        /**
+                         * @description Language of the media content.
+                         * @example English
+                         */
+                        language?: string | null;
+                        /**
+                         * Format: date
+                         * @description Date the media was published.
+                         * @example 2019-03-26
+                         */
+                        published_at?: string | null;
+                        /**
+                         * @description Name of the publisher or publishing organization.
+                         * @example Yen On
+                         */
+                        publisher?: string | null;
                         /**
                          * @description Title of the media item.
                          * @example 86—EIGHTY-SIX, Vol. 1
