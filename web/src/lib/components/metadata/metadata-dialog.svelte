@@ -89,7 +89,7 @@
 		</div>
 
 		<div class="mt-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-			{#each books as book}
+			{#each books as book (book.provider_id)}
 				<SearchCard {book} onclick={getMetadata} />
 			{/each}
 		</div>

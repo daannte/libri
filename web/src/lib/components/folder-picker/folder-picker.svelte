@@ -42,7 +42,7 @@
 			</span>
 		</div>
 		<div class="mt-4 flex flex-col gap-2">
-			{#each dirs as dir}
+			{#each dirs as dir (dir)}
 				<FolderRow {dir} onclick={(p: string) => (path = p)} />
 			{/each}
 		</div>

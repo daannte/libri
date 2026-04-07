@@ -45,8 +45,8 @@
 
 			<p class="-mt-2">
 				<Button variant="link" class="p-0 text-chart-1" onclick={() => inputEl.click()}
-					>choose files</Button
-				>{' '}
+					>choose files
+				</Button>
 				to upload
 			</p>
 		</div>

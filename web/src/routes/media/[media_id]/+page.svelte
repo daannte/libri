@@ -120,7 +120,7 @@
 		<div class="my-4 border-t-2"></div>
 
 		<div class="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-[auto_1fr_auto_1fr] sm:gap-x-8">
-			{#each metadataArr as [label, value]}
+			{#each metadataArr as [label, value] (label)}
 				<span class="text-sm font-medium sm:text-base">
 					{labelize(label)}
 				</span>

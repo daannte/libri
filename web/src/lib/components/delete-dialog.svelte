@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { createClient } from '@shiori/api-client';
 
 	import * as Dialog from './ui/dialog';
@@ -22,7 +23,7 @@
 		try {
 			let res = await client.DELETE('/api/v1/media/{id}', { params: { path: { id } } });
 			if (res.error || res.data) throw new Error('Failed to delete media');
-			goto('/');
+			goto(resolve('/'));
 		} catch (e) {
 			console.error('Failed delete: ', e);
 			error = 'Failed to delete media';

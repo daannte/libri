@@ -19,7 +19,7 @@
 	</div>
 	{#if files.length}
 		<div class="mt-2 flex flex-col gap-1">
-			{#each files as file}
+			{#each files as file (file.name)}
 				<div class="group flex items-center justify-between rounded-xl bg-muted/80 p-2">
 					<div class="flex items-center gap-2 overflow-hidden">
 						<FileIcon size={20} class="shrink-0" />
