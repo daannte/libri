@@ -36,6 +36,7 @@ pub async fn search_id(book: &str) -> MetadataResult<EncodableMetadataSearch> {
             .and_then(Value::as_str)
             .map(String::from),
         genres: extract_genres(book_info),
+        provider_id: extract_id(book_info),
         ..Default::default()
     };
 
@@ -73,6 +74,19 @@ fn book_info(apollo_state: &Value) -> Option<&Value> {
         .iter()
         .find(|(k, _)| k.to_lowercase().starts_with("book:"))
         .map(|(_, v)| v)
+}
+
+/// Extract the goodreads id. Every book on goodreads should
+/// have a legacy id.
+fn extract_id(book_info: &Value) -> u32 {
+    book_info
+        .get("legacyId")
+        .and_then(|v| {
+            v.as_u64()
+                .and_then(|n| u32::try_from(n).ok())
+                .or_else(|| v.as_str()?.parse::<u32>().ok())
+        })
+        .expect("Is this a goodreads book?")
 }
 
 /// Return a list of genres
