@@ -4,8 +4,6 @@ use crate::MetadataError;
 use crate::provider::{MetadataProvider, MetadataResult};
 use crate::{goodreads::parsing::fetch_doc, provider::BooksParams};
 
-const BOOK_LIMIT: usize = 3;
-
 pub async fn search_books(params: BooksParams) -> MetadataResult<Vec<String>> {
     let url = format!(
         "{}{}",
@@ -34,7 +32,7 @@ pub async fn search_books(params: BooksParams) -> MetadataResult<Vec<String>> {
 
     let row_selector = Selector::parse("tr[itemtype='http://schema.org/Book']").unwrap();
 
-    let books = table.select(&row_selector).take(BOOK_LIMIT);
+    let books = table.select(&row_selector);
 
     let mut res = Vec::new();
 
