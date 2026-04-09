@@ -5,9 +5,10 @@
 	import { Button } from '../ui/button';
 	import { Label } from '../ui/label';
 	import { Input } from '../ui/input';
+	import SearchCard from './search-card.svelte';
 
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
-	import SearchCard from './search-card.svelte';
+	import Search from '@lucide/svelte/icons/search';
 
 	type MetadataSearch =
 		operations['get_book_metadata']['responses']['200']['content']['application/json'];
@@ -70,37 +71,47 @@
 </script>
 
 <Dialog.Root bind:open={isOpen}>
-	<Dialog.Content class="sm:min-w-9/12">
+	<Dialog.Content class="flex max-h-[90vh] flex-col sm:min-w-11/12">
 		<Dialog.Header>
 			<Dialog.Title class="text-xl font-semibold">Fetch Metadata</Dialog.Title>
 			<Dialog.Description>Search by title and author to fetch metadata.</Dialog.Description>
 		</Dialog.Header>
 
-		<div class="mt-4 flex justify-center gap-4">
+		<div class="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
 			<div>
 				<Label for="author" class="sr-only">Author</Label>
-				<Input id="author" bind:value={author} placeholder="Enter Author Name" />
+				<Input
+					class="text-sm md:text-base"
+					id="author"
+					bind:value={author}
+					placeholder="Enter Author Name"
+				/>
 			</div>
 
 			<div>
 				<Label for="title" class="sr-only">Book Title</Label>
-				<Input id="title" bind:value={title} placeholder="Enter Book Title" />
+				<Input
+					class="text-sm md:text-base"
+					id="title"
+					bind:value={title}
+					placeholder="Enter Book Title"
+				/>
 			</div>
+			<Button size="icon" class="w-full sm:w-8" onclick={search} disabled={loading}>
+				{#if loading}
+					<LoaderCircle class="animate-spin" />
+				{:else}
+					<Search />
+				{/if}
+			</Button>
 		</div>
 
-		<div class="mt-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-			{#each books as book (book.provider_id)}
-				<SearchCard {book} onclick={getMetadata} />
-			{/each}
-		</div>
-
-		<Button class="mt-4 w-full sm:w-auto" onclick={search} disabled={loading}>
-			{#if loading}
-				<LoaderCircle class="mr-2 inline-block animate-spin" />
-				Searching...
-			{:else}
-				Search
-			{/if}
-		</Button>
+		{#if books.length}
+			<div class="mt-6 grid gap-4 overflow-y-auto sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+				{#each books as book (book.provider_id)}
+					<SearchCard {book} onclick={getMetadata} />
+				{/each}
+			</div>
+		{/if}
 	</Dialog.Content>
 </Dialog.Root>
