@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
-// use diesel_async::{AsyncPgConnection, RunQueryDsl};
+use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use serde::Serialize;
 
 use crate::schema::users;
@@ -22,6 +22,16 @@ pub struct User {
     pub created_at: DateTime<Utc>,
 }
 
+impl User {
+    pub async fn find(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<User> {
+        User::query().find(id).first(conn).await
+    }
+
+    pub async fn count(conn: &mut AsyncPgConnection) -> QueryResult<i64> {
+        users::table.count().get_result(conn).await
+    }
+}
+
 /// Represents a new user record insertable to the `users` table.
 #[derive(Debug, Insertable)]
 #[diesel(table_name = users)]
@@ -30,4 +40,14 @@ pub struct NewUser<'a> {
     pub username: &'a str,
     pub hashed_password: &'a str,
     pub is_server_owner: bool,
+}
+
+impl NewUser<'_> {
+    pub async fn insert(&self, mut conn: &AsyncPgConnection) -> QueryResult<User> {
+        diesel::insert_into(users::table)
+            .values(self)
+            .returning(User::as_returning())
+            .get_result(&mut conn)
+            .await
+    }
 }
