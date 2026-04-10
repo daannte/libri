@@ -6,6 +6,7 @@ use tokio::fs;
 use axum::{
     Json,
     extract::{Path, State},
+    middleware,
 };
 use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
 use serde::Deserialize;
@@ -18,12 +19,14 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 use crate::{
     config::state::AppState,
     errors::{APIError, APIResult},
+    middleware::auth::auth_middleware,
 };
 
 pub fn mount() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(list_libraries, create_library))
         .routes(routes!(list_library_media, create_library_media))
+        .layer(middleware::from_fn(auth_middleware))
 }
 
 /// List all libraries.

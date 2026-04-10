@@ -1,6 +1,6 @@
 use base64::{Engine, engine::general_purpose};
 use chrono::{DateTime, Duration, Utc};
-use jsonwebtoken::{EncodingKey, Header, encode};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use once_cell::sync::Lazy;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
@@ -8,9 +8,13 @@ use uuid::Uuid;
 
 /// Generates a random 64-byte secret and encodes it as Base64.
 fn generate_secret() -> String {
-    let mut bytes = [0u8; 64];
-    rand::rng().fill_bytes(&mut bytes);
-    general_purpose::STANDARD.encode(bytes)
+    if cfg!(debug_assertions) {
+        "dev-secret".to_string()
+    } else {
+        let mut bytes = [0u8; 64];
+        rand::rng().fill_bytes(&mut bytes);
+        general_purpose::STANDARD.encode(bytes)
+    }
 }
 
 // I dont expect the server to crash every 2 seconds, so I'll keep it like this for now.
@@ -82,6 +86,17 @@ impl AccessToken {
             token,
             expires_at: times.exp_dt,
         })
+    }
+
+    /// Decode a signed JWT access token and return the user ID.
+    pub fn decode(token: &str) -> Result<String, jsonwebtoken::errors::Error> {
+        let data = decode::<AccessTokenClaims>(
+            &token,
+            &DecodingKey::from_secret(ACCESS_TOKEN_SECRET.as_bytes()),
+            &Validation::default(),
+        )?;
+
+        Ok(data.claims.sub)
     }
 }
 
