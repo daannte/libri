@@ -64,7 +64,7 @@ pub struct AccessToken {
 impl AccessToken {
     /// Creates a signed JWT access token valid for 15 minutes.
     pub(crate) fn new(user_id: i32) -> Result<AccessToken, jsonwebtoken::errors::Error> {
-        let times = JwtTimes::new(Duration::days(15));
+        let times = JwtTimes::new(Duration::minutes(15));
 
         let claims = AccessTokenClaims {
             iat: times.iat,
