@@ -6,7 +6,7 @@ use crate::errors::{APIError, APIResult};
 pub async fn auth_middleware(req: Request, next: Next) -> APIResult<Response> {
     let auth_header = req.headers().get(header::AUTHORIZATION);
     let auth_header = match auth_header {
-        Some(header) => header.to_str().map_err(|_| return APIError::Unauthorized)?,
+        Some(header) => header.to_str().map_err(|_| APIError::Unauthorized)?,
         None => return Err(APIError::Unauthorized),
     };
 
