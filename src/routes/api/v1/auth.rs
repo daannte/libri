@@ -1,7 +1,7 @@
 use axum::{Json, extract::State};
 use serde::Deserialize;
 use shiori_api_types::{EncodableUser, LoginResponse};
-use shiori_jwt::create_jwt_tokens;
+use shiori_jwt::JwtTokenPair;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 use shiori_database::models::{NewRefreshToken, NewUser, User};
@@ -61,9 +61,9 @@ async fn login(
         return Err(APIError::Unauthorized);
     }
 
-    let tokens = create_jwt_tokens(user.id)
-        .await
-        .map_err(|_| APIError::InternalServerError("".to_string()))?;
+    let tokens = JwtTokenPair::new(user.id).map_err(|_| {
+        APIError::InternalServerError("Failed to generate authentication tokens".to_string())
+    })?;
 
     let rt = NewRefreshToken {
         jti: &tokens.refresh_token.jti,
