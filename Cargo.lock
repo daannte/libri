@@ -2954,6 +2954,7 @@ dependencies = [
  "serde",
  "serde_json",
  "shiori_database",
+ "shiori_jwt",
  "utoipa",
 ]
 
@@ -3002,6 +3003,7 @@ dependencies = [
  "once_cell",
  "rand 0.10.0",
  "serde",
+ "utoipa",
  "uuid",
 ]
 

@@ -1,10 +1,10 @@
 use axum::{Json, extract::State};
 use serde::Deserialize;
-use shiori_api_types::EncodableUser;
+use shiori_api_types::{EncodableUser, LoginResponse};
 use shiori_jwt::create_jwt_tokens;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
-use shiori_database::models::{NewUser, User};
+use shiori_database::models::{NewRefreshToken, NewUser, User};
 
 use crate::{
     auth::{hash_password, verify_password},
@@ -38,24 +38,45 @@ pub struct AuthRequest {
     tag = "auth",
     request_body = inline(AuthRequest),
     responses(
-        (status = 200, description = "Successfully logged in"),
+        (status = 200, description = "Successfully logged in", body = inline(LoginResponse)),
         (status = 401, description = "Unauthorized"),
         (status = 500, description = "Internal server error")
     )
 )]
-async fn login(State(app): State<AppState>, Json(body): Json<AuthRequest>) -> APIResult<()> {
+async fn login(
+    State(app): State<AppState>,
+    Json(body): Json<AuthRequest>,
+) -> APIResult<Json<LoginResponse>> {
     let mut conn = app.db().await?;
 
     let user = User::find_by_username(&mut conn, &body.username)
         .await?
         .ok_or_else(|| APIError::Unauthorized)?;
 
-    let _valid = verify_password(&user.hashed_password, &body.password)
+    // TODO: Maybe like lock account after 3 or 5 attempts?
+    let valid = verify_password(&user.hashed_password, &body.password)
         .map_err(|_| APIError::Unauthorized)?;
 
-    let _tokens = create_jwt_tokens(&user.id).await;
+    if !valid {
+        return Err(APIError::Unauthorized);
+    }
 
-    Ok(())
+    let tokens = create_jwt_tokens(user.id)
+        .await
+        .map_err(|_| APIError::InternalServerError("".to_string()))?;
+
+    let rt = NewRefreshToken {
+        jti: &tokens.refresh_token.jti,
+        user_id: user.id,
+        expires_at: tokens.refresh_token.expires_at,
+    };
+
+    let _ = rt.insert(&mut conn).await?;
+
+    Ok(Json(LoginResponse {
+        tokens,
+        user: user.into(),
+    }))
 }
 
 /// Register

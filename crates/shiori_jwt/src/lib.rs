@@ -15,35 +15,52 @@ fn generate_secret() -> String {
 static ACCESS_TOKEN_SECRET: Lazy<String> = Lazy::new(generate_secret);
 static REFRESH_TOKEN_SECRET: Lazy<String> = Lazy::new(generate_secret);
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, utoipa::ToSchema)]
 pub struct JwtTokenPair {
-    pub access_token: String,
-    pub refresh_token: Option<String>,
-    pub expires_at: DateTime<Utc>,
+    pub access_token: AccessToken,
+    pub refresh_token: RefreshToken,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct AccessTokenClaims {
+struct AccessTokenClaims {
     iat: usize,
     exp: usize,
     sub: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct RefreshTokenClaims {
+struct RefreshTokenClaims {
     iat: usize,
     exp: usize,
     sub: String,
     jti: String,
 }
 
-pub async fn create_jwt_tokens(user_id: &i32) -> Result<JwtTokenPair, jsonwebtoken::errors::Error> {
-    let access_token = create_access_token(user_id);
-    let refresh_token = create_refresh_token(user_id);
-    todo!()
+#[derive(Serialize, Deserialize, utoipa::ToSchema)]
+pub struct AccessToken {
+    pub token: String,
+    pub expires_at: DateTime<Utc>,
 }
 
-fn create_access_token(user_id: &i32) -> Result<String, jsonwebtoken::errors::Error> {
+#[derive(Serialize, Deserialize, utoipa::ToSchema)]
+pub struct RefreshToken {
+    pub token: String,
+    #[serde(skip_serializing)]
+    pub jti: String,
+    pub expires_at: DateTime<Utc>,
+}
+
+pub async fn create_jwt_tokens(user_id: i32) -> Result<JwtTokenPair, jsonwebtoken::errors::Error> {
+    let access_token = create_access_token(user_id)?;
+    let refresh_token = create_refresh_token(user_id)?;
+
+    Ok(JwtTokenPair {
+        access_token: access_token,
+        refresh_token: refresh_token,
+    })
+}
+
+fn create_access_token(user_id: i32) -> Result<AccessToken, jsonwebtoken::errors::Error> {
     let now = Utc::now();
     let iat = now.timestamp() as usize;
     let exp_dt = now + Duration::minutes(15);
@@ -61,10 +78,13 @@ fn create_access_token(user_id: &i32) -> Result<String, jsonwebtoken::errors::Er
         &EncodingKey::from_secret(ACCESS_TOKEN_SECRET.as_bytes()),
     )?;
 
-    Ok(token)
+    Ok(AccessToken {
+        token,
+        expires_at: exp_dt,
+    })
 }
 
-fn create_refresh_token(user_id: &i32) -> Result<String, jsonwebtoken::errors::Error> {
+fn create_refresh_token(user_id: i32) -> Result<RefreshToken, jsonwebtoken::errors::Error> {
     let now = Utc::now();
     let iat = now.timestamp() as usize;
     let exp_dt = now + Duration::days(7);
@@ -75,7 +95,7 @@ fn create_refresh_token(user_id: &i32) -> Result<String, jsonwebtoken::errors::E
         iat,
         exp,
         sub: user_id.to_string(),
-        jti,
+        jti: jti.clone(),
     };
 
     let token = encode(
@@ -84,5 +104,9 @@ fn create_refresh_token(user_id: &i32) -> Result<String, jsonwebtoken::errors::E
         &EncodingKey::from_secret(REFRESH_TOKEN_SECRET.as_bytes()),
     )?;
 
-    Ok(token)
+    Ok(RefreshToken {
+        token,
+        jti,
+        expires_at: exp_dt,
+    })
 }
