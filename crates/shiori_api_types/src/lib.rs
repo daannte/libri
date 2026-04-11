@@ -225,3 +225,10 @@ pub struct EncodableDirectories {
     #[schema(examples("light_novels"))]
     pub directories: Vec<String>,
 }
+
+#[derive(Serialize, Deserialize, utoipa::ToSchema)]
+pub struct EncodableMeta {
+    /// Whether the server has been initialized and an owner account exists.
+    #[schema(examples(true))]
+    pub initialized: bool,
+}

@@ -7,9 +7,10 @@ const baseUrl = import.meta.env.PROD ? window.location.origin : "http://localhos
 
 export function createClient(options?: ClientOptions) {
 
-  const mergedOptions = {
+  const mergedOptions: ClientOptions = {
     baseUrl,
-    ...options
+    ...options,
+    credentials: "include"
   }
 
   return createOpenAPIClient<paths>(mergedOptions)

@@ -17,11 +17,12 @@ use crate::routes::api;
     info(title = "Shiori", description = "TODO"),
     modifiers(&SecurityAddon),
     tags(
-        (name = tags::LIBRARY, description = "Library endpoints"),
-        (name = tags::MEDIA, description = "Media endpoints"),
-        (name = tags::METADATA, description = "Metadata endpoints"),
-        (name = tags::AUTH, description = "Auth endpoints"),
-        (name = tags::FILESYSTEM, description = "Filesystem endpoints") 
+        (name = tags::LIBRARY, description = "Library resources and operations"),
+        (name = tags::MEDIA, description = "Media management and processing"),
+        (name = tags::METADATA, description = "Metadata and informational resources"),
+        (name = tags::AUTH, description = "Authentication and authorization"),
+        (name = tags::FILESYSTEM, description = "File storage and filesystem operations"),
+        (name = tags::SYSTEM, description = "System state and utility operations")
     )
 )]
 pub struct BaseOpenApi;
@@ -61,4 +62,5 @@ pub mod tags {
     pub const METADATA: &str = "metadata";
     pub const AUTH: &str = "auth";
     pub const FILESYSTEM: &str = "filesystem";
+    pub const SYSTEM: &str = "system";
 }

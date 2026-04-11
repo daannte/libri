@@ -1,4 +1,4 @@
-use axum_extra::extract::cookie::Cookie;
+use axum_extra::extract::cookie::{Cookie, SameSite};
 use base64::{Engine, engine::general_purpose};
 use chrono::{DateTime, Duration, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
@@ -109,6 +109,7 @@ impl AccessToken {
             .secure(cfg!(not(debug_assertions)))
             .http_only(true)
             .expires(offset)
+            .same_site(SameSite::Lax)
             .build()
     }
 }
@@ -161,6 +162,7 @@ impl RefreshToken {
             .secure(cfg!(not(debug_assertions)))
             .http_only(true)
             .expires(offset)
+            .same_site(SameSite::Lax)
             .build()
     }
 }

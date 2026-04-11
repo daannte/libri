@@ -168,7 +168,7 @@ async fn logout() {}
 
 /// Currently authenticated user
 #[utoipa::path(
-    post,
+    get,
     path = "/auth/me",
     tag = tags::AUTH,
     security(
