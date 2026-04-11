@@ -153,6 +153,17 @@ impl RefreshToken {
         })
     }
 
+    /// Decode a signed JWT refresh token and return the user ID and jti.
+    pub fn decode(token: &str) -> Result<(String, String), jsonwebtoken::errors::Error> {
+        let data = decode::<RefreshTokenClaims>(
+            &token,
+            &DecodingKey::from_secret(REFRESH_TOKEN_SECRET.as_bytes()),
+            &Validation::default(),
+        )?;
+
+        Ok((data.claims.sub, data.claims.jti))
+    }
+
     pub fn to_cookie(self) -> Cookie<'static> {
         let offset =
             time::OffsetDateTime::from_unix_timestamp(self.expires_at.timestamp()).unwrap();

@@ -27,6 +27,17 @@ impl RefreshToken {
     pub async fn find(conn: &mut AsyncPgConnection, jti: &str) -> QueryResult<RefreshToken> {
         RefreshToken::query().find(jti).first(conn).await
     }
+
+    pub async fn revoke(conn: &mut AsyncPgConnection, jti: &str) -> QueryResult<usize> {
+        diesel::update(
+            refresh_tokens::table
+                .filter(refresh_tokens::jti.eq(jti))
+                .filter(refresh_tokens::revoked_at.is_null()),
+        )
+        .set(refresh_tokens::revoked_at.eq(Utc::now()))
+        .execute(conn)
+        .await
+    }
 }
 
 /// Represents a new refresh token record insertable to the `refresh_tokens` table.
