@@ -3,7 +3,7 @@ use axum_extra::extract::CookieJar;
 use serde::Deserialize;
 use shiori_api_types::EncodableUser;
 use shiori_database::models::RefreshToken as RefreshModel;
-use shiori_jwt::{JwtTokenPair, RefreshToken};
+use shiori_jwt::{AccessToken, JwtTokenPair, RefreshToken};
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 use shiori_database::models::{NewRefreshToken, NewUser, User};
@@ -54,7 +54,7 @@ pub struct AuthRequest {
     responses(
         (status = 200, description = "Successfully logged in", body = inline(EncodableUser),
             headers(
-                ("set-cookie" = String, description = "Sets access_token and refresh_token HttpOnly cookies")
+                ("set-cookie" = String, description = "Sets access_token and refresh_token cookies")
             )
         ),
         (status = 401, description = "Unauthorized"),
@@ -211,11 +211,31 @@ async fn refresh_token(
         ("cookie" = [])
     ),
     responses(
-        (status = 200, description = "Successfully logged out"),
+        (status = 204, description = "Successfully logged out", headers(
+                ("set-cookie" = String, description = "Removes access_token and refresh_token cookies")
+            )
+        ),
+        (status = 401, description = "Unauthorized"),
         (status = 500, description = "Internal server error")
     )
 )]
-async fn logout() {}
+async fn logout(State(app): State<AppState>, jar: CookieJar) -> APIResult<(StatusCode, CookieJar)> {
+    let mut conn = app.db().await?;
+
+    let cookie = jar
+        .get("refresh_token")
+        .ok_or_else(|| APIError::Unauthorized)?;
+
+    let (_, jti) = RefreshToken::decode(cookie.value()).map_err(|_| APIError::Unauthorized)?;
+
+    RefreshModel::revoke(&mut conn, &jti).await?;
+
+    let jar = jar
+        .remove(RefreshToken::remove_cookie())
+        .remove(AccessToken::remove_cookie());
+
+    Ok((StatusCode::NO_CONTENT, jar))
+}
 
 /// Currently authenticated user
 #[utoipa::path(

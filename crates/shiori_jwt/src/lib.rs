@@ -112,6 +112,18 @@ impl AccessToken {
             .same_site(SameSite::Lax)
             .build()
     }
+
+    pub fn remove_cookie() -> Cookie<'static> {
+        let offset = time::OffsetDateTime::from_unix_timestamp(0).unwrap();
+
+        Cookie::build(("access_token", ""))
+            .path("/")
+            .secure(cfg!(not(debug_assertions)))
+            .http_only(true)
+            .expires(offset)
+            .same_site(SameSite::Lax)
+            .build()
+    }
 }
 
 #[derive(Serialize, Deserialize, utoipa::ToSchema)]
@@ -169,6 +181,18 @@ impl RefreshToken {
             time::OffsetDateTime::from_unix_timestamp(self.expires_at.timestamp()).unwrap();
 
         Cookie::build(("refresh_token", self.token))
+            .path("/")
+            .secure(cfg!(not(debug_assertions)))
+            .http_only(true)
+            .expires(offset)
+            .same_site(SameSite::Lax)
+            .build()
+    }
+
+    pub fn remove_cookie() -> Cookie<'static> {
+        let offset = time::OffsetDateTime::from_unix_timestamp(0).unwrap();
+
+        Cookie::build(("refresh_token", ""))
             .path("/")
             .secure(cfg!(not(debug_assertions)))
             .http_only(true)
