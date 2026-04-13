@@ -1,13 +1,14 @@
 use chrono::{DateTime, Utc};
-use diesel::prelude::*;
+use diesel::{dsl::now, prelude::*};
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use serde::Serialize;
 
-use crate::schema::api_tokens;
+use crate::{models::User, schema::api_tokens};
 
 /// The model representing a row in the `api_tokens` database table.
-#[derive(Debug, HasQuery, Identifiable, Serialize)]
+#[derive(Debug, HasQuery, Identifiable, Associations, Serialize)]
 #[diesel(table_name = api_tokens)]
+#[diesel(belongs_to(User))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct ApiToken {
     /// Unique identifier for the token.
@@ -29,6 +30,31 @@ pub struct ApiToken {
 }
 
 impl ApiToken {
+    pub async fn find_by_hash(
+        conn: &mut AsyncPgConnection,
+        hash: &Vec<u8>,
+    ) -> QueryResult<ApiToken> {
+        ApiToken::query()
+            .filter(api_tokens::token_hash.eq(hash))
+            .filter(
+                api_tokens::expires_at
+                    .is_null()
+                    .or(api_tokens::expires_at.gt(now)),
+            )
+            .first(conn)
+            .await
+    }
+
+    pub async fn delete(
+        conn: &mut AsyncPgConnection,
+        key_id: String,
+        user: &User,
+    ) -> QueryResult<usize> {
+        diesel::delete(ApiToken::belonging_to(user).filter(api_tokens::key_id.eq(key_id)))
+            .execute(conn)
+            .await
+    }
+
     pub async fn all(conn: &mut AsyncPgConnection) -> QueryResult<Vec<ApiToken>> {
         ApiToken::query().load(conn).await
     }
