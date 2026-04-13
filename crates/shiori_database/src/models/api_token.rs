@@ -55,8 +55,17 @@ impl ApiToken {
             .await
     }
 
-    pub async fn all(conn: &mut AsyncPgConnection) -> QueryResult<Vec<ApiToken>> {
-        ApiToken::query().load(conn).await
+    pub async fn all(conn: &mut AsyncPgConnection, user: &User) -> QueryResult<Vec<ApiToken>> {
+        ApiToken::belonging_to(user)
+            .select(ApiToken::as_select())
+            .filter(
+                api_tokens::expires_at
+                    .is_null()
+                    .or(api_tokens::expires_at.assume_not_null().gt(now)),
+            )
+            .order(api_tokens::id.desc())
+            .load(conn)
+            .await
     }
 }
 

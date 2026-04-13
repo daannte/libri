@@ -1534,7 +1534,6 @@ expression: newest.to_pretty_json().unwrap()
                     "type": "object",
                     "required": [
                       "id",
-                      "user_id",
                       "name",
                       "key_id",
                       "created_at"
@@ -1590,14 +1589,6 @@ expression: newest.to_pretty_json().unwrap()
                         "description": "Name for the token.",
                         "examples": [
                           "Koreader Sync"
-                        ]
-                      },
-                      "user_id": {
-                        "type": "integer",
-                        "format": "int32",
-                        "description": "Unique identifier of the user associated with this token.",
-                        "examples": [
-                          47
                         ]
                       }
                     }
@@ -1755,7 +1746,6 @@ expression: newest.to_pretty_json().unwrap()
         "type": "object",
         "required": [
           "id",
-          "user_id",
           "name",
           "key_id",
           "created_at"
@@ -1811,14 +1801,6 @@ expression: newest.to_pretty_json().unwrap()
             "description": "Name for the token.",
             "examples": [
               "Koreader Sync"
-            ]
-          },
-          "user_id": {
-            "type": "integer",
-            "format": "int32",
-            "description": "Unique identifier of the user associated with this token.",
-            "examples": [
-              47
             ]
           }
         }

@@ -309,12 +309,6 @@ export interface components {
              * @example Koreader Sync
              */
             name: string;
-            /**
-             * Format: int32
-             * @description Unique identifier of the user associated with this token.
-             * @example 47
-             */
-            user_id: number;
         };
         Media: {
             /**
@@ -1513,12 +1507,6 @@ export interface operations {
                          * @example Koreader Sync
                          */
                         name: string;
-                        /**
-                         * Format: int32
-                         * @description Unique identifier of the user associated with this token.
-                         * @example 47
-                         */
-                        user_id: number;
                     }[];
                 };
             };

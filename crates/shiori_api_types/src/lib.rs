@@ -171,10 +171,6 @@ pub struct EncodableApiToken {
     #[schema(examples(86))]
     pub id: i32,
 
-    /// Unique identifier of the user associated with this token.
-    #[schema(examples(47))]
-    pub user_id: i32,
-
     /// Name for the token.
     #[schema(examples("Koreader Sync"))]
     pub name: String,
@@ -200,7 +196,6 @@ impl From<ApiToken> for EncodableApiToken {
     fn from(t: ApiToken) -> Self {
         Self {
             id: t.id,
-            user_id: t.user_id,
             name: t.name,
             key_id: t.key_id,
             expires_at: t.expires_at,
