@@ -67,6 +67,13 @@ impl ApiToken {
             .load(conn)
             .await
     }
+
+    pub async fn update_last_used(&self, conn: &mut AsyncPgConnection) -> QueryResult<usize> {
+        diesel::update(&self)
+            .set(api_tokens::last_used_at.eq(now))
+            .execute(conn)
+            .await
+    }
 }
 
 /// Represents a new api token record insertable to the `api_tokens` table.

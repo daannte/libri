@@ -95,7 +95,21 @@ impl FromRequestParts<AppState> for AuthUser {
 
         let user_id = match auth {
             AuthContext::Cookie(id) => *id,
-            AuthContext::Token(token) => ApiToken::find_by_hash(&mut conn, token).await?.user_id,
+            AuthContext::Token(token) => {
+                let api_token = ApiToken::find_by_hash(&mut conn, token)
+                    .await
+                    .map_err(|_| unauthorized("Invalid API token"))?;
+
+                if let Err(e) = api_token.update_last_used(&mut conn).await {
+                    tracing::error!(
+                        api_token = api_token.key_id,
+                        error = %e,
+                        "Failed to update last used time"
+                    );
+                }
+
+                api_token.user_id
+            }
         };
 
         let user = User::find(&mut conn, user_id).await?;
