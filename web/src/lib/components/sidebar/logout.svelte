@@ -34,7 +34,7 @@
 			<Dialog.Description>Do you really want to logout?</Dialog.Description>
 		</Dialog.Header>
 		<Dialog.Footer>
-			<Button onclick={() => (isOpen = false)}>Cancel</Button>
+			<Button onclick={() => (isOpen = false)} variant="secondary">Cancel</Button>
 			<Button onclick={handleLogout} variant="destructive">Logout</Button>
 		</Dialog.Footer>
 	</Dialog.Content>

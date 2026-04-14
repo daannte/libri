@@ -5,11 +5,7 @@
 	import { createSvelteTable, FlexRender } from '../ui/data-table';
 	import { columns, type Token } from './columns';
 
-	interface Props {
-		data: Token[];
-	}
-
-	let { data }: Props = $props();
+	let { data }: { data: Token[] } = $props();
 
 	const table = createSvelteTable({
 		get data() {
@@ -20,7 +16,7 @@
 	});
 </script>
 
-<div class="rounded-md border">
+<div class="mt-4 rounded-lg border bg-accent p-2">
 	<Table.Root>
 		<Table.Header>
 			{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
@@ -38,9 +34,9 @@
 				</Table.Row>
 			{/each}
 		</Table.Header>
-		<Table.Body>
+		<Table.Body class="border bg-background">
 			{#each table.getRowModel().rows as row (row.id)}
-				<Table.Row data-state={row.getIsSelected() && 'selected'}>
+				<Table.Row class="hover:bg-transparent" data-state={row.getIsSelected() && 'selected'}>
 					{#each row.getVisibleCells() as cell (cell.id)}
 						<Table.Cell>
 							<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />

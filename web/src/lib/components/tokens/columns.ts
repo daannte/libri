@@ -11,15 +11,30 @@ export type Token = components["schemas"]["ApiToken"]
 export const columns: ColumnDef<Token>[] = [
   {
     accessorKey: "key_id",
-    header: "Key ID"
+    header: () => {
+      const snippet = createRawSnippet(() => ({
+        render: () => `<span class="text-muted-foreground text-sm">Key ID</span>`
+      }))
+      return renderSnippet(snippet)
+    }
   },
   {
     accessorKey: "name",
-    header: "Name"
+    header: () => {
+      const snippet = createRawSnippet(() => ({
+        render: () => `<span class="text-muted-foreground text-sm">Name</span>`
+      }))
+      return renderSnippet(snippet)
+    }
   },
   {
     accessorKey: "expires_at",
-    header: "Expires",
+    header: () => {
+      const snippet = createRawSnippet(() => ({
+        render: () => `<span class="text-muted-foreground text-sm">Expires</span>`
+      }))
+      return renderSnippet(snippet)
+    },
     cell: ({ row }) => {
       const createdAtSnippet = createRawSnippet<[{ date: string | null | undefined }]>(
         (getDate) => {
@@ -45,7 +60,12 @@ export const columns: ColumnDef<Token>[] = [
   },
   {
     accessorKey: "created_at",
-    header: "Created",
+    header: () => {
+      const snippet = createRawSnippet(() => ({
+        render: () => `<span class="text-muted-foreground text-sm">Created</span>`
+      }))
+      return renderSnippet(snippet)
+    },
     cell: ({ row }) => {
       const formatter = new Intl.DateTimeFormat("en-us", { dateStyle: "long", timeStyle: "short" })
 
@@ -64,7 +84,12 @@ export const columns: ColumnDef<Token>[] = [
   },
   {
     accessorKey: "last_used_at",
-    header: "Last Used",
+    header: () => {
+      const snippet = createRawSnippet(() => ({
+        render: () => `<span class="text-muted-foreground text-sm">Last Used</span>`
+      }))
+      return renderSnippet(snippet)
+    },
     cell: ({ row }) => {
       const createdAtSnippet = createRawSnippet<[{ date: string | null | undefined }]>(
         (getDate) => {
