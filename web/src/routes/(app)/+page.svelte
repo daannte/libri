@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
+	import EmptyView from '$lib/components/empty-view.svelte';
 
 	import Folders from '@lucide/svelte/icons/folders';
-	import EmptyView from '$lib/components/empty-view.svelte';
 </script>
 
 <EmptyView

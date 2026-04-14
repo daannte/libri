@@ -44,7 +44,7 @@
 			<p>Drag & drop files here or</p>
 
 			<p class="-mt-2">
-				<Button variant="link" class="p-0 text-chart-1" onclick={() => inputEl.click()}
+				<Button variant="link" class="p-0 text-primary" onclick={() => inputEl.click()}
 					>choose files
 				</Button>
 				to upload

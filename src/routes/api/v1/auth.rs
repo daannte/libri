@@ -12,7 +12,7 @@ use crate::{
     auth::{hash_password, verify_password},
     config::state::AppState,
     errors::{AppResult, bad_request, server_error, unauthorized},
-    middleware::auth::{CurrentUser, auth_middleware},
+    middleware::auth::{AuthUser, auth_middleware},
     routes::openapi::tags,
 };
 
@@ -234,7 +234,8 @@ async fn logout(State(app): State<AppState>, jar: CookieJar) -> AppResult<(Statu
     path = "/auth/me",
     tag = tags::AUTH,
     security(
-        ("cookie" = [])
+        ("cookie" = []),
+        ("api_token" = [])
     ),
     responses(
         (status = 200, description = "Successfully retrieved current user", body = inline(EncodableUser)),
@@ -242,6 +243,6 @@ async fn logout(State(app): State<AppState>, jar: CookieJar) -> AppResult<(Statu
         (status = 500, description = "Internal server error")
     )
 )]
-async fn me(CurrentUser(user): CurrentUser) -> AppResult<Json<EncodableUser>> {
-    Ok(Json(EncodableUser::from(user)))
+async fn me(AuthUser(auth): AuthUser) -> AppResult<Json<EncodableUser>> {
+    Ok(Json(EncodableUser::from(auth.user().to_owned())))
 }

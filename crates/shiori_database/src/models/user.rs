@@ -6,7 +6,7 @@ use serde::Serialize;
 use crate::schema::users;
 
 /// The model representing a row in the `users` database table.
-#[derive(Debug, HasQuery, Identifiable, Serialize)]
+#[derive(Clone, Debug, HasQuery, Identifiable, Serialize)]
 #[diesel(table_name = users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {
