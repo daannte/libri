@@ -1,5 +1,7 @@
 <script lang="ts">
-	let { data } = $props();
+	import DataTable from '$lib/components/tokens/data-table.svelte';
 
-	$inspect(data);
+	let { data } = $props();
 </script>
+
+<DataTable data={data.tokens} />

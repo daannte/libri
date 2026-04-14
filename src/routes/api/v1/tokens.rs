@@ -105,10 +105,13 @@ async fn create_token(
         (status = 500, description = "Internal server error")
     )
 )]
-async fn list_tokens(State(app): State<AppState>) -> AppResult<Json<Vec<EncodableApiToken>>> {
+async fn list_tokens(
+    State(app): State<AppState>,
+    AuthUser(auth): AuthUser,
+) -> AppResult<Json<Vec<EncodableApiToken>>> {
     let mut conn = app.db().await?;
 
-    let tokens = ApiToken::all(&mut conn)
+    let tokens = ApiToken::all(&mut conn, auth.user())
         .await?
         .into_iter()
         .map(Into::into)
