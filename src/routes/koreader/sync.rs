@@ -17,7 +17,7 @@ pub fn mount() -> OpenApiRouter<AppState> {
 /// Authorize koreader sync user.
 #[utoipa::path(
     get,
-    path = "/users/auth",
+    path = "/{token}/users/auth",
     tag = tags::KOREADER,
     responses(
         (status = 200, description = "Successfully authorized user"),
@@ -49,7 +49,7 @@ struct PutProgressRequest {
 /// Save koreader progress.
 #[utoipa::path(
     put,
-    path = "/syncs/progress",
+    path = "/{token}/syncs/progress",
     tag = tags::KOREADER,
     request_body = inline(PutProgressRequest),
     responses(
@@ -79,7 +79,7 @@ struct GetProgressResponse {
 /// Retrieve koreader progress.
 #[utoipa::path(
     get,
-    path = "/syncs/progress/{document}",
+    path = "/{token}/syncs/progress/{document}",
     tag = tags::KOREADER,
     params(
         ("document" = String, Path, description = "Hash of the book in the Koreader system")
