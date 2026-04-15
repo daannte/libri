@@ -23,6 +23,7 @@
 			console.error('Failed to delete token');
 		} finally {
 			isDeleting = false;
+			isDeleteOpen = false;
 		}
 	}
 </script>

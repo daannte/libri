@@ -2,7 +2,6 @@
 	import { invalidate } from '$app/navigation';
 	import { createClient } from '@shiori/api-client';
 
-	import * as Dialog from '../ui/dialog';
 	import { Label } from '../ui/label';
 	import { Input } from '../ui/input';
 	import { Button, buttonVariants } from '../ui/button';
@@ -11,6 +10,7 @@
 
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import Plus from '@lucide/svelte/icons/plus';
+	import Dialog from '../dialog.svelte';
 
 	let client = createClient({ fetch });
 
@@ -20,11 +20,12 @@
 	let createdToken = $state<string | null>(null);
 	let isLoading = $state(false);
 
-	function reset() {
+	function handleClose() {
 		name = '';
 		date = undefined;
 		createdToken = null;
 		isLoading = false;
+		isOpen = false;
 	}
 
 	async function handleToken() {
@@ -52,29 +53,24 @@
 	}
 </script>
 
-<Dialog.Root
-	bind:open={isOpen}
-	onOpenChange={(open) => {
-		if (!open) reset();
-	}}
+<Dialog
+	bind:isOpen
+	title={createdToken ? 'Token Created' : 'Generate Token'}
+	description={createdToken
+		? 'Make sure to copy your token now. You won’t be able to see it again.'
+		: 'Provide details to generate a new token.'}
+	onClose={handleClose}
+	onConfirm={createdToken ? () => navigator.clipboard.writeText(createdToken!) : handleToken}
+	confirmText={createdToken ? 'Copy' : 'Generate'}
+	cancelText={createdToken ? 'Done' : 'Cancel'}
+	cancelVariant={'secondary'}
+	{isLoading}
 >
-	<Dialog.Trigger type="button" class={buttonVariants({ variant: 'default' })}>
+	{#snippet trigger()}
 		<Plus /> Generate New Token
-	</Dialog.Trigger>
-	<Dialog.Content showCloseButton={false}>
-		<Dialog.Header>
-			<Dialog.Title>
-				{createdToken ? 'Token Created' : 'Generate Token'}
-			</Dialog.Title>
-			<Dialog.Description>
-				{#if createdToken}
-					Make sure to copy your token now. You won’t be able to see it again.
-				{:else}
-					Provide details to generate a new token.
-				{/if}
-			</Dialog.Description>
-		</Dialog.Header>
+	{/snippet}
 
+	{#snippet children()}
 		{#if createdToken}
 			<div class="flex flex-col gap-4">
 				<Input
@@ -83,22 +79,6 @@
 					class="font-mono"
 					onfocus={(e) => e.currentTarget.select()}
 				/>
-
-				<div class="flex gap-2">
-					<Button class="flex-1" onclick={() => navigator.clipboard.writeText(createdToken!)}>
-						Copy
-					</Button>
-
-					<Button
-						variant="secondary"
-						onclick={() => {
-							reset();
-							isOpen = false;
-						}}
-					>
-						Done
-					</Button>
-				</div>
 			</div>
 		{:else}
 			<div class="flex flex-col gap-4">
@@ -117,18 +97,6 @@
 					<p class="text-xs text-muted-foreground">Leave empty to never expire</p>
 				</div>
 			</div>
-
-			<Dialog.Footer>
-				<Dialog.Close class={buttonVariants({ variant: 'secondary' })}>Cancel</Dialog.Close>
-
-				<Button onclick={handleToken} disabled={!name || isLoading}>
-					{#if isLoading}
-						<LoaderCircle class="animate-spin" />
-					{:else}
-						Generate
-					{/if}
-				</Button>
-			</Dialog.Footer>
 		{/if}
-	</Dialog.Content>
-</Dialog.Root>
+	{/snippet}
+</Dialog>
