@@ -18,7 +18,7 @@
 		triggerVariant?: ButtonVariant;
 		triggerSize?: ButtonSize;
 		trigger?: Snippet | string;
-		showFooter?: boolean;
+		hideFooter?: boolean;
 		class?: string;
 		children?: Snippet;
 	}
@@ -37,7 +37,7 @@
 		trigger,
 		triggerSize,
 		triggerVariant,
-		showFooter = false,
+		hideFooter = false,
 		class: className,
 		children
 	}: Props = $props();
@@ -70,7 +70,7 @@
 			<Dialog.Description>{description}</Dialog.Description>
 		</Dialog.Header>
 		{@render children?.()}
-		{#if showFooter}
+		{#if !hideFooter}
 			<Dialog.Footer>
 				<Button disabled={isLoading} onclick={onClose} variant={cancelVariant}
 					>{cancelText || 'Cancel'}</Button

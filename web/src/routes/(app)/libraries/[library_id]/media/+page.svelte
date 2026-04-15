@@ -60,7 +60,7 @@
 		{#snippet content()}
 			<Dialog
 				title="Upload Files"
-				isOpen={isUploadOpen}
+				bind:isOpen={isUploadOpen}
 				isLoading={isUploading}
 				onClose={() => {
 					isUploadOpen = false;

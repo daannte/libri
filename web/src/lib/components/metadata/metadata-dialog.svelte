@@ -78,6 +78,7 @@
 	triggerVariant="outline"
 	triggerSize="icon"
 	class="flex max-h-[90vh] flex-col sm:min-w-11/12"
+	hideFooter
 >
 	{#snippet trigger()}
 		<Database />
