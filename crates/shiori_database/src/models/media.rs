@@ -31,6 +31,8 @@ pub struct Media {
     pub library_id: i32,
     /// File system path where the cover is stored.
     pub cover_path: Option<String>,
+    /// Hash of the book in the Koreader system.
+    pub koreader_hash: Option<String>,
 }
 
 impl Media {
@@ -76,6 +78,7 @@ pub struct NewMedia<'a> {
     pub extension: &'a str,
     pub library_id: i32,
     pub cover_path: Option<&'a str>,
+    pub koreader_hash: Option<&'a str>,
 }
 
 impl NewMedia<'_> {

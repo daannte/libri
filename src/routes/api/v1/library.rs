@@ -1,4 +1,4 @@
-use shiori_filesystem::media::epub::Epub;
+use shiori_filesystem::{hash::generate_koreader_hash, media::epub::Epub};
 use std::ffi::OsStr;
 use std::path;
 use tokio::fs;
@@ -247,6 +247,9 @@ async fn create_library_media(
             return Err(bad_request("Media already exists in library".to_string()));
         }
 
+        // TODO: Make this optional later since not everyone uses koreader
+        let koreader_hash = generate_koreader_hash(f.contents.path()).ok();
+
         let new_media = NewMedia {
             name: file_stem,
             size: f
@@ -264,6 +267,7 @@ async fn create_library_media(
             extension: &ext,
             library_id,
             cover_path: None,
+            koreader_hash: koreader_hash.as_deref(),
         };
 
         tracing::debug!(?new_media, "Inserting new media into DB");
