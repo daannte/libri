@@ -1,17 +1,27 @@
 use axum::{
     Json,
     extract::{Path, State},
+    middleware,
 };
+use bigdecimal::BigDecimal;
+use chrono::Utc;
 use serde::Deserialize;
+use shiori_database::models::{Media, UpdateReadingProgress};
 use utoipa_axum::{router::OpenApiRouter, routes};
 
-use crate::{config::state::AppState, errors::AppResult, routes::openapi::tags};
+use crate::{
+    config::state::AppState,
+    errors::{AppResult, bad_request},
+    middleware::auth::{AuthUser, url_auth_middleware},
+    routes::openapi::tags,
+};
 
 pub fn mount() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(authorize))
         .routes(routes!(get_progress))
         .routes(routes!(update_progress))
+        .layer(middleware::from_fn(url_auth_middleware))
 }
 
 /// Authorize koreader sync user.
@@ -38,8 +48,9 @@ struct PutProgressRequest {
     ///     - A page number (for paginated books).
     ///     - An x-pointer (for DOM-based books, using their scrolling reader).
     progress: String,
-    /// Reading progress as a percentage, indicating how much of the book has been read.
-    percentage: f32,
+    /// Reading progress as a percentage of completion.
+    #[schema(value_type = f64)]
+    percentage: BigDecimal,
     /// Name of the Koreader device that the progress is being tracked on.
     device: String,
     /// Unique device identifier (UUID) assigned by Koreader to the specific device.
@@ -53,15 +64,47 @@ struct PutProgressRequest {
     tag = tags::KOREADER,
     request_body = inline(PutProgressRequest),
     responses(
-        (status = 200, description = "Successfully saved progress"),
+        (status = 204, description = "Successfully saved progress"),
         (status = 401, description = "Unauthorized"),
+        (status = 404, description = "Media not found"),
     )
 )]
 async fn update_progress(
-    State(_app): State<AppState>,
+    State(app): State<AppState>,
+    AuthUser(auth): AuthUser,
     Json(body): Json<PutProgressRequest>,
 ) -> AppResult<()> {
     tracing::debug!(progress = ?body, "Put progress request");
+
+    let one = BigDecimal::from(1);
+
+    if !(body.percentage >= BigDecimal::from(0) && body.percentage <= one) {
+        tracing::error!("Invalid percentage provided for progress request");
+        return Err(bad_request("Invalid percentage"));
+    }
+
+    let mut conn = app.db().await?;
+    let user = auth.user();
+    let percentage = body.percentage.with_scale(4);
+
+    let media = Media::find_by_koreader_hash(&mut conn, &body.document).await?;
+
+    let _is_completed = percentage == one;
+    tracing::debug!(completed = _is_completed, "Is media completed");
+
+    let progress = UpdateReadingProgress {
+        user_id: user.id,
+        media_id: media.id,
+        device_id: Some(&body.device_id),
+        koreader_progress: Some(&body.progress),
+        percentage_completed: Some(percentage),
+        updated_at: Utc::now(),
+    };
+
+    tracing::debug!(progress = ?progress, "Updating reading progress");
+
+    progress.upsert(&mut conn).await?;
+
     Ok(())
 }
 

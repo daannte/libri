@@ -50,6 +50,16 @@ impl Media {
             .await
     }
 
+    pub async fn find_by_koreader_hash(
+        conn: &mut AsyncPgConnection,
+        koreader_hash: &str,
+    ) -> QueryResult<Media> {
+        Media::query()
+            .filter(media::koreader_hash.eq(koreader_hash))
+            .first(conn)
+            .await
+    }
+
     pub async fn with_metadata(
         conn: &mut AsyncPgConnection,
         id: i32,
