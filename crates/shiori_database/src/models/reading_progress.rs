@@ -27,8 +27,8 @@ pub struct ReadingProgress {
     pub koreader_progress: Option<String>,
     /// Reading progress as a percentage of completion.
     pub percentage_completed: Option<BigDecimal>,
-    /// Timestamp of when this progress was created.
-    pub created_at: DateTime<Utc>,
+    /// Timestamp of when this progress started.
+    pub started_at: DateTime<Utc>,
     /// Timestamp of when this progrses was updated.
     pub updated_at: DateTime<Utc>,
     /// Indicates whether this media has been fully read by the user.

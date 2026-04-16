@@ -3,8 +3,8 @@ use diesel::prelude::*;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 
 use crate::{
-    models::{Library, MediaMetadata},
-    schema::{media, media_metadata},
+    models::{Library, MediaMetadata, ReadingProgress},
+    schema::{media, media_metadata, reading_progress},
 };
 use serde::Serialize;
 
@@ -69,6 +69,24 @@ impl Media {
             .filter(media::id.eq(id))
             .select((Media::as_select(), Option::<MediaMetadata>::as_select()))
             .first::<(Media, Option<MediaMetadata>)>(conn)
+            .await
+    }
+
+    pub async fn with_details(
+        conn: &mut AsyncPgConnection,
+        id: i32,
+        user_id: i32,
+    ) -> QueryResult<(Media, Option<MediaMetadata>, Option<ReadingProgress>)> {
+        media::table
+            .left_join(media_metadata::table)
+            .left_join(
+                reading_progress::table.on(reading_progress::media_id
+                    .eq(media::id)
+                    .and(reading_progress::user_id.eq(user_id))),
+            )
+            .filter(media::id.eq(id))
+            .select((Media::as_select(), Option::as_select(), Option::as_select()))
+            .first(conn)
             .await
     }
 

@@ -3042,6 +3042,7 @@ dependencies = [
 name = "shiori_api_types"
 version = "0.0.0"
 dependencies = [
+ "bigdecimal",
  "chrono",
  "serde",
  "serde_json",

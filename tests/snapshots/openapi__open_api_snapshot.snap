@@ -918,7 +918,7 @@ expression: newest.to_pretty_json().unwrap()
         ],
         "responses": {
           "200": {
-            "description": "Successfully fetched media cover",
+            "description": "Successfully fetched media",
             "content": {
               "application/json": {
                 "schema": {
@@ -936,6 +936,16 @@ expression: newest.to_pretty_json().unwrap()
                             },
                             {
                               "$ref": "#/components/schemas/MediaMetadata"
+                            }
+                          ]
+                        },
+                        "progress": {
+                          "oneOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "$ref": "#/components/schemas/ReadingProgress"
                             }
                           ]
                         }
@@ -1081,6 +1091,16 @@ expression: newest.to_pretty_json().unwrap()
                             },
                             {
                               "$ref": "#/components/schemas/MediaMetadata"
+                            }
+                          ]
+                        },
+                        "progress": {
+                          "oneOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "$ref": "#/components/schemas/ReadingProgress"
                             }
                           ]
                         }
@@ -1773,8 +1793,8 @@ expression: newest.to_pretty_json().unwrap()
                   },
                   "percentage": {
                     "type": "number",
-                    "format": "float",
-                    "description": "Reading progress as a percentage, indicating how much of the book has been read."
+                    "format": "double",
+                    "description": "Reading progress as a percentage of completion."
                   },
                   "progress": {
                     "type": "string",
@@ -1787,11 +1807,14 @@ expression: newest.to_pretty_json().unwrap()
           "required": true
         },
         "responses": {
-          "200": {
+          "204": {
             "description": "Successfully saved progress"
           },
           "401": {
             "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Media not found"
           }
         }
       }
@@ -2186,6 +2209,59 @@ expression: newest.to_pretty_json().unwrap()
             "description": "Name of the publisher or publishing organization.",
             "examples": [
               "Yen On"
+            ]
+          }
+        }
+      },
+      "ReadingProgress": {
+        "type": "object",
+        "required": [
+          "percentage_completed",
+          "started_at",
+          "updated_at",
+          "completed"
+        ],
+        "properties": {
+          "completed": {
+            "type": "boolean",
+            "description": "Indicates whether this media has been fully read by the user.",
+            "examples": [
+              false
+            ]
+          },
+          "completed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Timestamp of when the media was completed.",
+            "examples": [
+              "2026-05-24T17:21:12Z"
+            ]
+          },
+          "percentage_completed": {
+            "type": "number",
+            "format": "double",
+            "description": "Reading progress as a percentage of completion.",
+            "examples": [
+              0.986
+            ]
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when this progress started.",
+            "examples": [
+              "2026-03-24T16:33:19Z"
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when this progrses was updated.",
+            "examples": [
+              "2026-05-24T17:21:12Z"
             ]
           }
         }
