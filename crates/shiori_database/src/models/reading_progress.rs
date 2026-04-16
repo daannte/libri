@@ -1,6 +1,6 @@
 use bigdecimal::BigDecimal;
 use chrono::{DateTime, Utc};
-use diesel::prelude::*;
+use diesel::{dsl::sql, prelude::*};
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use serde::Serialize;
 
@@ -48,6 +48,8 @@ pub struct UpdateReadingProgress<'a> {
     pub koreader_progress: Option<&'a str>,
     pub percentage_completed: Option<BigDecimal>,
     pub updated_at: DateTime<Utc>,
+    pub completed: bool,
+    pub completed_at: Option<DateTime<Utc>>,
 }
 
 impl UpdateReadingProgress<'_> {
@@ -61,6 +63,10 @@ impl UpdateReadingProgress<'_> {
                 reading_progress::koreader_progress.eq(self.koreader_progress),
                 reading_progress::percentage_completed.eq(self.percentage_completed.clone()),
                 reading_progress::updated_at.eq(self.updated_at),
+                reading_progress::completed.eq(self.completed),
+                reading_progress::completed_at.eq(sql(
+                    "COALESCE(reading_progress.completed_at, EXCLUDED.completed_at)",
+                )),
             ))
             .returning(ReadingProgress::as_returning())
             .get_result(&mut conn)

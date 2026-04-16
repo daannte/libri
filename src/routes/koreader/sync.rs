@@ -74,11 +74,11 @@ async fn update_progress(
     AuthUser(auth): AuthUser,
     Json(body): Json<PutProgressRequest>,
 ) -> AppResult<()> {
-    tracing::debug!(progress = ?body, "Put progress request");
+    tracing::debug!(progress = ?body, "Progress request update");
 
     let one = BigDecimal::from(1);
 
-    if !(body.percentage >= BigDecimal::from(0) && body.percentage <= one) {
+    if body.percentage < BigDecimal::from(0) || body.percentage > one {
         tracing::error!("Invalid percentage provided for progress request");
         return Err(bad_request("Invalid percentage"));
     }
@@ -89,8 +89,7 @@ async fn update_progress(
 
     let media = Media::find_by_koreader_hash(&mut conn, &body.document).await?;
 
-    let _is_completed = percentage == one;
-    tracing::debug!(completed = _is_completed, "Is media completed");
+    let completed = percentage == one;
 
     let progress = UpdateReadingProgress {
         user_id: user.id,
@@ -99,11 +98,13 @@ async fn update_progress(
         koreader_progress: Some(&body.progress),
         percentage_completed: Some(percentage),
         updated_at: Utc::now(),
+        completed_at: if completed { Some(Utc::now()) } else { None },
+        completed,
     };
 
-    tracing::debug!(progress = ?progress, "Updating reading progress");
+    let saved = progress.upsert(&mut conn).await?;
 
-    progress.upsert(&mut conn).await?;
+    tracing::debug!(progress = ?saved, "Updated reading progress");
 
     Ok(())
 }
