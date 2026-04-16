@@ -651,81 +651,36 @@ expression: newest.to_pretty_json().unwrap()
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "name",
-                      "size",
-                      "path",
-                      "extension",
-                      "created_at",
-                      "library_id"
-                    ],
-                    "properties": {
-                      "cover_path": {
-                        "type": [
-                          "string",
-                          "null"
-                        ],
-                        "description": "Endpoint where the cover is stored.",
-                        "examples": [
-                          "/api/v1/media/4/cover"
-                        ]
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Media"
                       },
-                      "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Timestamp of when the media was created.",
-                        "examples": [
-                          "2026-03-23T12:00:00Z"
-                        ]
-                      },
-                      "extension": {
-                        "type": "string",
-                        "description": "File extension of the media.",
-                        "examples": [
-                          "epub"
-                        ]
-                      },
-                      "id": {
-                        "type": "integer",
-                        "format": "int32",
-                        "description": "Unique identifier for the media item.",
-                        "examples": [
-                          86
-                        ]
-                      },
-                      "library_id": {
-                        "type": "integer",
-                        "format": "int32",
-                        "description": "Library this media belongs to.",
-                        "examples": [
-                          2
-                        ]
-                      },
-                      "name": {
-                        "type": "string",
-                        "description": "Name of the media file, excluding extension.",
-                        "examples": [
-                          "86_Volume_1"
-                        ]
-                      },
-                      "path": {
-                        "type": "string",
-                        "description": "File system path where the media is stored.",
-                        "examples": [
-                          "/data/books/light_novels/86_Volume_1.epub"
-                        ]
-                      },
-                      "size": {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Size of the media file in bytes.",
-                        "examples": [
-                          "102400"
-                        ]
+                      {
+                        "type": "object",
+                        "properties": {
+                          "metadata": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "$ref": "#/components/schemas/MediaMetadata"
+                              }
+                            ]
+                          },
+                          "progress": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "$ref": "#/components/schemas/ReadingProgress"
+                              }
+                            ]
+                          }
+                        }
                       }
-                    }
+                    ]
                   }
                 }
               }

@@ -1000,52 +1000,10 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /**
-                         * @description Endpoint where the cover is stored.
-                         * @example /api/v1/media/4/cover
-                         */
-                        cover_path?: string | null;
-                        /**
-                         * Format: date-time
-                         * @description Timestamp of when the media was created.
-                         * @example 2026-03-23T12:00:00Z
-                         */
-                        created_at: string;
-                        /**
-                         * @description File extension of the media.
-                         * @example epub
-                         */
-                        extension: string;
-                        /**
-                         * Format: int32
-                         * @description Unique identifier for the media item.
-                         * @example 86
-                         */
-                        id: number;
-                        /**
-                         * Format: int32
-                         * @description Library this media belongs to.
-                         * @example 2
-                         */
-                        library_id: number;
-                        /**
-                         * @description Name of the media file, excluding extension.
-                         * @example 86_Volume_1
-                         */
-                        name: string;
-                        /**
-                         * @description File system path where the media is stored.
-                         * @example /data/books/light_novels/86_Volume_1.epub
-                         */
-                        path: string;
-                        /**
-                         * Format: int64
-                         * @description Size of the media file in bytes.
-                         * @example 102400
-                         */
-                        size: number;
-                    }[];
+                    "application/json": (components["schemas"]["Media"] & {
+                        metadata?: null | components["schemas"]["MediaMetadata"];
+                        progress?: null | components["schemas"]["ReadingProgress"];
+                    })[];
                 };
             };
             /** @description Library not found */

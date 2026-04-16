@@ -261,6 +261,16 @@ pub struct EncodableMediaDetails {
     pub progress: Option<EncodableReadingProgress>,
 }
 
+impl From<(Media, Option<ReadingProgress>)> for EncodableMediaDetails {
+    fn from((media, progress): (Media, Option<ReadingProgress>)) -> Self {
+        Self {
+            media: media.into(),
+            progress: progress.map(|p| p.into()),
+            metadata: None,
+        }
+    }
+}
+
 #[derive(Default, Serialize, Deserialize, utoipa::ToSchema)]
 pub struct EncodableMetadataSearch {
     /// Title of the media item.

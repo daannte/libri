@@ -40,12 +40,19 @@ impl Media {
         Media::query().find(id).first(conn).await
     }
 
-    pub async fn find_by_library_id(
+    pub async fn find_by_library_with_progress(
         conn: &mut AsyncPgConnection,
         library_id: i32,
-    ) -> QueryResult<Vec<Media>> {
-        Media::query()
+        user_id: i32,
+    ) -> QueryResult<Vec<(Media, Option<ReadingProgress>)>> {
+        media::table
+            .left_join(
+                reading_progress::table.on(reading_progress::media_id
+                    .eq(media::id)
+                    .and(reading_progress::user_id.eq(user_id))),
+            )
             .filter(media::library_id.eq(library_id))
+            .select((Media::as_select(), Option::as_select()))
             .load(conn)
             .await
     }
@@ -67,8 +74,8 @@ impl Media {
         media::table
             .left_join(media_metadata::table)
             .filter(media::id.eq(id))
-            .select((Media::as_select(), Option::<MediaMetadata>::as_select()))
-            .first::<(Media, Option<MediaMetadata>)>(conn)
+            .select((Media::as_select(), Option::as_select()))
+            .first(conn)
             .await
     }
 

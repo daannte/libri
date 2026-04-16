@@ -15,6 +15,7 @@
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import { resolve } from '$app/paths';
 	import { format } from 'date-fns';
+	import Progress from '$lib/components/ui/progress/progress.svelte';
 
 	type PatchMetadata = components['schemas']['PatchMetadata'];
 	type MetadataSearch =
@@ -113,7 +114,16 @@
 
 		<p class="mt-4 text-sm md:mt-8 md:text-base">{@html data.metadata?.description}</p>
 
-		<div class="mt-4 flex gap-2">
+		{#if data.progress}
+			<div class="my-4 flex items-center gap-2">
+				<Progress value={data.progress.percentage_completed} max={1} class="w-full md:w-40" />
+				<span class="text-sm text-muted-foreground">
+					{Math.round(data.progress.percentage_completed * 100)}%
+				</span>
+			</div>
+		{/if}
+
+		<div class="flex gap-2">
 			<MetadataDialog bind:metadataSearch bind:isOpen={isMetadataOpen} name={data.name} />
 			<Button size="icon" variant="outline"><Download /></Button>
 			<Dialog

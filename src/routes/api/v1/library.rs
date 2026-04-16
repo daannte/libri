@@ -11,7 +11,7 @@ use axum::{
 };
 use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
 use serde::Deserialize;
-use shiori_api_types::{EncodableLibrary, EncodableMedia};
+use shiori_api_types::{EncodableLibrary, EncodableMedia, EncodableMediaDetails};
 use shiori_database::models::{Library, Media, NewLibrary, NewMedia, PatchMedia};
 use tempfile::NamedTempFile;
 use utoipa::ToSchema;
@@ -20,7 +20,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 use crate::{
     config::state::AppState,
     errors::{AppResult, bad_request, custom},
-    middleware::auth::auth_middleware,
+    middleware::auth::{AuthUser, auth_middleware},
     routes::openapi::tags,
 };
 
@@ -160,7 +160,7 @@ async fn create_library(
         ("id" = i32, Path, description = "Id of the library")
     ),
     responses(
-        (status = 200, description = "Successfully fetched library media", body = inline(Vec<EncodableMedia>)),
+        (status = 200, description = "Successfully fetched library media", body = inline(Vec<EncodableMediaDetails>)),
         (status = 404, description = "Library not found"),
         (status = 500, description = "Internal server error")
     )
@@ -168,10 +168,11 @@ async fn create_library(
 async fn list_library_media(
     Path(library_id): Path<i32>,
     State(app): State<AppState>,
-) -> AppResult<Json<Vec<EncodableMedia>>> {
+    AuthUser(auth): AuthUser,
+) -> AppResult<Json<Vec<EncodableMediaDetails>>> {
     let mut conn = app.db().await?;
 
-    let media = Media::find_by_library_id(&mut conn, library_id)
+    let media = Media::find_by_library_with_progress(&mut conn, library_id, auth.user().id)
         .await?
         .into_iter()
         .map(Into::into)
