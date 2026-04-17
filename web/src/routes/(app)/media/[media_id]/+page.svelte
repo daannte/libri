@@ -79,7 +79,9 @@
 		try {
 			let res = await client.DELETE('/api/v1/media/{id}', { params: { path: { id: data.id } } });
 			if (res.error || res.data) throw new Error();
-			goto(resolve('/'));
+			goto(
+				resolve('/(app)/libraries/[library_id]/media', { library_id: data.library_id.toString() })
+			);
 		} catch (e) {
 			console.error('Failed to delete media');
 		} finally {
