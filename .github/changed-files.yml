@@ -1,0 +1,25 @@
+backend_lint:
+  - .github/workflows/**
+  - crates/**
+  - src/**
+  - Cargo.lock
+  - Cargo.toml
+
+backend_test:
+  - .github/workflows/**
+  - crates/**
+  - migrations/**
+  - src/**
+  - Cargo.lock
+  - Cargo.toml
+  - diesel.toml
+
+frontend_lint:
+  - .github/workflows/**
+  - web/**
+  - bun.lock 
+
+api_client_test:
+  - packages/shiori-api-client/**
+  - tests/snapshots/openapi__open_api_snapshot.snap
+  - bun.lock
