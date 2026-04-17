@@ -10,12 +10,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import MetadataDialog from '$lib/components/metadata/metadata-dialog.svelte';
 	import Dialog from '$lib/components/dialog.svelte';
+	import Progress from '$lib/components/ui/progress/progress.svelte';
 
 	import Download from '@lucide/svelte/icons/download';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
+	import Check from '@lucide/svelte/icons/check';
 	import { resolve } from '$app/paths';
 	import { format } from 'date-fns';
-	import Progress from '$lib/components/ui/progress/progress.svelte';
 
 	type PatchMetadata = components['schemas']['PatchMetadata'];
 	type MetadataSearch =
@@ -116,10 +117,17 @@
 
 		{#if data.progress}
 			<div class="my-4 flex items-center gap-2">
-				<Progress value={data.progress.percentage_completed} max={1} class="w-full md:w-40" />
-				<span class="text-sm text-muted-foreground">
-					{Math.round(data.progress.percentage_completed * 100)}%
-				</span>
+				{#if data.progress.completed}
+					<div class="flex items-center gap-2 text-sm text-muted-foreground">
+						<Check size={18} />
+						<span>Completed</span>
+					</div>
+				{:else}
+					<Progress value={data.progress.percentage_completed} max={1} class="w-40" />
+					<span class="text-sm text-muted-foreground">
+						{Math.round(data.progress.percentage_completed * 100)}%
+					</span>
+				{/if}
 			</div>
 		{/if}
 
