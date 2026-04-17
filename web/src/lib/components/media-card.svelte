@@ -29,7 +29,7 @@
 			<div class="absolute right-2 bottom-2 left-2">
 				{#if media.progress.completed}
 					<div class="flex justify-end">
-						<div class="flex items-center justify-center rounded-full bg-secondary/70 p-1">
+						<div class="flex items-center justify-center rounded-full bg-secondary p-1">
 							<Check size={18} />
 						</div>
 					</div>

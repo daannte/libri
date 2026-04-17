@@ -41,7 +41,6 @@
 			isUploadOpen = false;
 		}
 	}
-	$inspect(isUploadOpen);
 </script>
 
 {#if data.media.length > 0}

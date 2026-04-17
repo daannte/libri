@@ -116,7 +116,7 @@
 		<p class="mt-4 text-sm md:mt-8 md:text-base">{@html data.metadata?.description}</p>
 
 		{#if data.progress}
-			<div class="my-4 flex items-center gap-2">
+			<div class="mt-2 flex items-center gap-2">
 				{#if data.progress.completed}
 					<div class="flex items-center gap-2 text-sm text-muted-foreground">
 						<Check size={18} />
@@ -131,7 +131,7 @@
 			</div>
 		{/if}
 
-		<div class="flex gap-2">
+		<div class="mt-2 flex gap-2">
 			<MetadataDialog bind:metadataSearch bind:isOpen={isMetadataOpen} name={data.name} />
 			<Button size="icon" variant="outline"><Download /></Button>
 			<Dialog
