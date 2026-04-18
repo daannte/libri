@@ -3,9 +3,7 @@
 	import type { Snippet } from 'svelte';
 
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
-	import { Button, buttonVariants } from '@shiori/components';
-
-	import * as Dialog from './ui/dialog';
+	import { Button, buttonVariants, Dialog } from '@shiori/components';
 
 	interface Props {
 		isOpen: boolean;
