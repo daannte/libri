@@ -1,7 +1,8 @@
 <script lang="ts">
-	import * as Accordion from '$lib/components/ui/accordion/';
 	import X from '@lucide/svelte/icons/x';
-	import { Button } from '../ui/button';
+	import { Button } from '@shiori/components';
+
+	import * as Accordion from '$lib/components/ui/accordion/';
 
 	interface Props {
 		files: File[];

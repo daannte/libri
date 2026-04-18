@@ -6,11 +6,11 @@
 	import type { WithoutChildrenOrChild } from '$lib/utils.js';
 	import type { ComponentProps, Snippet } from 'svelte';
 
+	import XIcon from '@lucide/svelte/icons/x';
+	import { Button } from '@shiori/components';
 	import { Dialog as SheetPrimitive } from 'bits-ui';
 
-	import { Button } from '$lib/components/ui/button/index.js';
 	import { cn } from '$lib/utils.js';
-	import XIcon from '@lucide/svelte/icons/x';
 	import SheetOverlay from './sheet-overlay.svelte';
 	import SheetPortal from './sheet-portal.svelte';
 

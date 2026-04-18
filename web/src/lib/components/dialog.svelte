@@ -1,9 +1,10 @@
 <script lang="ts">
+	import type { ButtonSize, ButtonVariant } from '@shiori/components';
 	import type { Snippet } from 'svelte';
-	import type { ButtonSize, ButtonVariant } from './ui/button';
 
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
-	import { Button, buttonVariants } from './ui/button';
+	import { Button, buttonVariants } from '@shiori/components';
+
 	import * as Dialog from './ui/dialog';
 
 	interface Props {

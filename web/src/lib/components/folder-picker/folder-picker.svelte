@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-	import { Button, buttonVariants } from '../ui/button';
+	import { Button, buttonVariants } from '@shiori/components';
+
 	import * as Dialog from '../ui/dialog';
 	import FolderRow from './folder-row.svelte';
 

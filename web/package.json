@@ -3,6 +3,7 @@
 	"version": "0.0.0",
 	"dependencies": {
 		"@shiori/api-client": "workspace:*",
+    "@shiori/components": "workspace:*",
 		"date-fns": "^4.1.0"
 	},
 	"devDependencies": {

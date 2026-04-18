@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { ButtonVariant } from '$lib/components/ui/button/index.js';
+	import type { ButtonVariant } from '@shiori/components';
 
 	import { Calendar as CalendarPrimitive } from 'bits-ui';
 
-	import { buttonVariants } from '$lib/components/ui/button/index.js';
+	import { buttonVariants } from '@shiori/components';
 	import { cn } from '$lib/utils.js';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 

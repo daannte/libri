@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { createClient } from '@shiori/api-client';
-
 	import LogOut from '@lucide/svelte/icons/log-out';
-	import { Button, buttonVariants } from '../ui/button';
+	import { createClient } from '@shiori/api-client';
+	import { Button, buttonVariants } from '@shiori/components';
+
 	import * as Dialog from '../ui/dialog';
 
 	let client = createClient({ fetch });
