@@ -1,11 +1,22 @@
-export * from './button/index.js';
-export * from './input/index.js';
-export * from './skeleton/index.js';
-export * from './separator/index.js';
-export * from './calendar/index.js';
-export * from './label/index.js';
-export * from './progress/index.js';
-export * from './data-table/index.js';
+export {
+	Button,
+	buttonVariants,
+	type ButtonProps,
+	type ButtonSize,
+	type ButtonVariant
+} from './button/index.js';
+export { Input } from './input/index.js';
+export { Skeleton } from './skeleton/index.js';
+export { Separator } from './separator/index.js';
+export { Calendar } from './calendar/index.js';
+export { Label } from './label/index.js';
+export { Progress } from './progress/index.js';
+export {
+	FlexRender,
+	renderComponent,
+	renderSnippet,
+	createSvelteTable
+} from './data-table/index.js';
 
 export * as Accordion from './accordion/index.js';
 export * as Collapsible from './collapsible/index.js';
