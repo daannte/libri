@@ -1,8 +1,6 @@
 <script lang="ts">
 	import X from '@lucide/svelte/icons/x';
-	import { Button } from '@shiori/components';
-
-	import * as Accordion from '$lib/components/ui/accordion/';
+	import { Accordion, Button } from '@shiori/components';
 
 	interface Props {
 		files: File[];
@@ -37,10 +35,4 @@
 			</Accordion.Content>
 		</Accordion.Item>
 	</Accordion.Root>
-	<!-- <div class="flex items-center justify-between"> -->
-	<!-- 	<span class="font-medium">Files</span> -->
-	<!-- 	{#if files.length} -->
-	<!-- 		<Button variant="outline" onclick={() => (files = [])}>Clear Files</Button> -->
-	<!-- 	{/if} -->
-	<!-- </div> -->
 </div>

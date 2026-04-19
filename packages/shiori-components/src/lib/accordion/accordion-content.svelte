@@ -1,10 +1,6 @@
 <script lang="ts">
-	import type { WithoutChild } from '$lib/utils.js';
-
 	import { Accordion as AccordionPrimitive } from 'bits-ui';
-
-	import { cn } from '$lib/utils.js';
-
+	import { cn, type WithoutChild } from '$lib/utils.js';
 	let {
 		ref = $bindable(null),
 		class: className,
@@ -21,7 +17,7 @@
 >
 	<div
 		class={cn(
-			'pt-0 pb-2.5 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4',
+			'pt-0 pb-4 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4',
 			className
 		)}
 	>
