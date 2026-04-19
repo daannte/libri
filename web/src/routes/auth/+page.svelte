@@ -5,9 +5,8 @@
 	import { resolve } from '$app/paths';
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import { createClient } from '@shiori/api-client';
-	import { Button } from '@shiori/components';
+	import { Button, Input } from '@shiori/components';
 
-	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { loginSchema, registerSchema } from './schema';
 

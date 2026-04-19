@@ -1,3 +1,10 @@
 export * from "./button/index.js"
+export * from "./input/index.js"
+export * from "./skeleton/index.js"
+export * from "./separator/index.js"
+
 export * as Dialog from "./dialog/index.js"
 export * as Empty from "./empty/index.js"
+export * as Sheet from "./sheet/index.js"
+export * as Sidebar from "./sidebar/index.js"
+export * as Tooltip from "./sidebar/index.js"

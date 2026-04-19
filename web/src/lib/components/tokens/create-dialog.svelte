@@ -3,13 +3,11 @@
 
 	import { invalidate } from '$app/navigation';
 	import { getLocalTimeZone } from '@internationalized/date';
-	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import Plus from '@lucide/svelte/icons/plus';
 	import { createClient } from '@shiori/api-client';
-	import { Button, buttonVariants } from '@shiori/components';
+	import { Input } from '@shiori/components';
 
 	import Dialog from '../dialog.svelte';
-	import { Input } from '../ui/input';
 	import { Label } from '../ui/label';
 	import DatePicker from './date-picker.svelte';
 

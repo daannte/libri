@@ -5,10 +5,9 @@
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
 	import House from '@lucide/svelte/icons/house';
 	import Settings2 from '@lucide/svelte/icons/settings-2';
-	import { Button } from '@shiori/components';
+	import { Button, Sidebar } from '@shiori/components';
 
 	import * as Collapsible from '$lib/components/ui/collapsible';
-	import * as Sidebar from '$lib/components/ui/sidebar';
 	import Logout from './logout.svelte';
 
 	let { data } = $props();
