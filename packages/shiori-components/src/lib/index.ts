@@ -1,4 +1,3 @@
-
 export * from "./button/index.js"
 export * from "./input/index.js"
 export * from "./skeleton/index.js"
@@ -11,6 +10,7 @@ export * from "./data-table/index.js"
 export * as Accordion from "./accordion/index.js"
 export * as Collapsible from "./collapsible/index.js"
 export * as Dialog from "./dialog/index.js"
+export * as DropdownMenu from "./dropdown-menu/index.js"
 export * as Empty from "./empty/index.js"
 export * as Popover from "./popover/index.js"
 export * as Sheet from "./sheet/index.js"

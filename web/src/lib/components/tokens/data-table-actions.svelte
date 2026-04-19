@@ -2,9 +2,8 @@
 	import { invalidate } from '$app/navigation';
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
 	import { createClient } from '@shiori/api-client';
-	import { Button } from '@shiori/components';
+	import { Button, DropdownMenu } from '@shiori/components';
 
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import Dialog from '../dialog.svelte';
 
 	const client = createClient({ fetch });
