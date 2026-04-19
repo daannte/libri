@@ -1,9 +1,6 @@
 <script lang="ts">
-	import type { WithElementRef } from '$lib/utils.js';
+	import { cn, type WithElementRef } from '$lib/utils.js';
 	import type { HTMLAttributes } from 'svelte/elements';
-
-	import { cn } from '$lib/utils.js';
-
 	let {
 		ref = $bindable(null),
 		class: className,
@@ -12,11 +9,11 @@
 	}: WithElementRef<HTMLAttributes<HTMLTableSectionElement>> = $props();
 </script>
 
-<tfoot
+<thead
 	bind:this={ref}
-	data-slot="table-footer"
-	class={cn('border-t bg-muted/50 font-medium [&>tr]:last:border-b-0', className)}
+	data-slot="table-header"
+	class={cn('[&_tr]:border-b', className)}
 	{...restProps}
 >
 	{@render children?.()}
-</tfoot>
+</thead>
