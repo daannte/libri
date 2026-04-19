@@ -3,10 +3,9 @@
 
 	import { getLocalTimeZone } from '@internationalized/date';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
-	import { Button } from '@shiori/components';
+	import { Button, Calendar } from '@shiori/components';
 	import { formatDate } from 'date-fns';
 
-	import { Calendar } from '$lib/components/ui/calendar/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { cn } from '$lib/utils.js';
 

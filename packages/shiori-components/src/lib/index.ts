@@ -2,6 +2,7 @@ export * from "./button/index.js"
 export * from "./input/index.js"
 export * from "./skeleton/index.js"
 export * from "./separator/index.js"
+export * from "./calendar/index.js"
 
 export * as Dialog from "./dialog/index.js"
 export * as Empty from "./empty/index.js"

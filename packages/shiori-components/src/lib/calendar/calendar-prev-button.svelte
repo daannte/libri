@@ -1,28 +1,23 @@
 <script lang="ts">
-	import type { ButtonVariant } from '@shiori/components';
-
-	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
-	import { buttonVariants } from '@shiori/components';
 	import { Calendar as CalendarPrimitive } from 'bits-ui';
-
+	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
+	import { buttonVariants, type ButtonVariant } from '$lib/button/index.js';
 	import { cn } from '$lib/utils.js';
-
 	let {
 		ref = $bindable(null),
 		class: className,
 		children,
 		variant = 'ghost',
 		...restProps
-	}: CalendarPrimitive.NextButtonProps & {
+	}: CalendarPrimitive.PrevButtonProps & {
 		variant?: ButtonVariant;
 	} = $props();
 </script>
 
 {#snippet Fallback()}
-	<ChevronRightIcon class={cn('size-4', className)} />
+	<ChevronLeftIcon class={cn('size-4', className)} />
 {/snippet}
-
-<CalendarPrimitive.NextButton
+<CalendarPrimitive.PrevButton
 	bind:ref
 	class={cn(
 		buttonVariants({ variant }),
@@ -36,4 +31,4 @@
 	{:else}
 		{@render Fallback()}
 	{/if}
-</CalendarPrimitive.NextButton>
+</CalendarPrimitive.PrevButton>

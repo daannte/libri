@@ -1,13 +1,9 @@
 <script lang="ts">
-	import type { DateValue } from '@internationalized/date';
 	import type { ComponentProps } from 'svelte';
 	import type Calendar from './calendar.svelte';
-
-	import { DateFormatter, getLocalTimeZone } from '@internationalized/date';
-
 	import CalendarMonthSelect from './calendar-month-select.svelte';
 	import CalendarYearSelect from './calendar-year-select.svelte';
-
+	import { DateFormatter, getLocalTimeZone, type DateValue } from '@internationalized/date';
 	let {
 		captionLayout,
 		months,
@@ -29,13 +25,11 @@
 		locale: string;
 		monthIndex: number;
 	} = $props();
-
 	function formatYear(date: DateValue) {
 		const dateObj = date.toDate(getLocalTimeZone());
 		if (typeof yearFormat === 'function') return yearFormat(dateObj.getFullYear());
 		return new DateFormatter(locale, { year: yearFormat }).format(dateObj);
 	}
-
 	function formatMonth(date: DateValue) {
 		const dateObj = date.toDate(getLocalTimeZone());
 		if (typeof monthFormat === 'function') return monthFormat(dateObj.getMonth() + 1);
@@ -56,11 +50,9 @@
 		}}
 	/>
 {/snippet}
-
 {#snippet YearSelect()}
 	<CalendarYearSelect {years} {yearFormat} value={month.year} />
 {/snippet}
-
 {#if captionLayout === 'dropdown'}
 	{@render MonthSelect()}
 	{@render YearSelect()}
