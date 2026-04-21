@@ -19,7 +19,7 @@
 		data-slot="accordion-trigger"
 		bind:ref
 		class={cn(
-			'group/accordion-trigger relative flex flex-1 items-start justify-between rounded-md border border-transparent py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:after:border-ring disabled:pointer-events-none disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground',
+			'group/accordion-trigger rounded-md py-4 text-sm font-medium focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:after:border-ring **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground relative flex flex-1 items-start justify-between border border-transparent text-left transition-all outline-none hover:underline focus-visible:ring-3 disabled:pointer-events-none disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ml-auto',
 			className
 		)}
 		{...restProps}
@@ -27,7 +27,7 @@
 		{@render children?.()}
 		<ChevronDownIcon
 			data-slot="accordion-trigger-icon"
-			class="**:data-[slot=accordion-trigger-icon]:size-4-icon pointer-events-none shrink-0 rounded-md py-4 text-left text-sm font-medium group-aria-expanded/accordion-trigger:hidden hover:underline focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:after:border-ring **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:text-muted-foreground"
+			class="**:data-[slot=accordion-trigger-icon]:size-4-icon rounded-md py-4 text-sm font-medium focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:after:border-ring **:data-[slot=accordion-trigger-icon]:text-muted-foreground pointer-events-none shrink-0 text-left group-aria-expanded/accordion-trigger:hidden hover:underline focus-visible:ring-3 **:data-[slot=accordion-trigger-icon]:ml-auto"
 		/>
 		<ChevronUpIcon
 			data-slot="accordion-trigger-icon"
