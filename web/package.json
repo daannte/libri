@@ -4,7 +4,8 @@
 	"dependencies": {
 		"@shiori/api-client": "workspace:*",
 		"@shiori/components": "workspace:*",
-		"date-fns": "^4.1.0"
+		"date-fns": "^4.1.0",
+		"mode-watcher": "^1.1.0"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.2",

@@ -13,7 +13,7 @@
 	bind:this={ref}
 	data-slot="dropdown-menu-shortcut"
 	class={cn(
-		'ml-auto text-xs tracking-widest text-muted-foreground group-focus/dropdown-menu-item:text-accent-foreground',
+		'text-xs tracking-widest text-muted-foreground group-focus/dropdown-menu-item:text-accent-foreground ml-auto',
 		className
 	)}
 	{...restProps}

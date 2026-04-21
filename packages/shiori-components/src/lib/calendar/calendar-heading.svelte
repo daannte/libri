@@ -10,6 +10,6 @@
 
 <CalendarPrimitive.Heading
 	bind:ref
-	class={cn('px-(--cell-size) text-sm font-medium', className)}
+	class={cn('text-sm font-medium px-(--cell-size)', className)}
 	{...restProps}
 />

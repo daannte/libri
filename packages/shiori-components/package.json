@@ -16,7 +16,7 @@
 		"dist",
 		"!dist/**/*.test.*",
 		"!dist/**/*.spec.*",
-    "./src/app.css"
+		"./src/app.css"
 	],
 	"sideEffects": [
 		"**/*.css"
@@ -29,7 +29,7 @@
 			"types": "./dist/index.d.ts",
 			"svelte": "./dist/index.js"
 		},
-    "./css": "./src/app.css"
+		"./css": "./src/app.css"
 	},
 	"peerDependencies": {
 		"svelte": "^5.0.0"

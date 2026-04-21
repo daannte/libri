@@ -13,7 +13,7 @@
 	bind:this={ref}
 	data-slot="sidebar-menu"
 	data-sidebar="menu"
-	class={cn('flex w-full min-w-0 flex-col gap-1', className)}
+	class={cn('min-w-0 gap-1 flex w-full flex-col', className)}
 	{...restProps}
 >
 	{@render children?.()}

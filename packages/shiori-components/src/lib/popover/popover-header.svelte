@@ -12,7 +12,7 @@
 <div
 	bind:this={ref}
 	data-slot="popover-header"
-	class={cn('flex flex-col gap-1 text-sm', className)}
+	class={cn('gap-1 text-sm flex flex-col', className)}
 	{...restProps}
 >
 	{@render children?.()}
