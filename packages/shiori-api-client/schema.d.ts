@@ -201,23 +201,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/metadata/book": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Search for book metadata. */
-        get: operations["get_book_metadata"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/metadata/search": {
         parameters: {
             query?: never;
@@ -1317,103 +1300,11 @@ export interface operations {
             };
         };
     };
-    get_book_metadata: {
+    search_books: {
         parameters: {
             query: {
                 /** @description A search query string. */
                 q: string;
-                /**
-                 * @description The provider to use for the search.
-                 *     Defaults to "goodreads" if not provided in the query.
-                 */
-                provider?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successfully found book metadata */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @description List of authors associated with the media item. */
-                        authors: string[];
-                        /**
-                         * @description URL of the cover image associated with the media.
-                         * @example https://example.com/cover.jpg
-                         */
-                        cover_url?: string | null;
-                        /**
-                         * @description Description of the media item.
-                         * @example The San Magnolia Republic...
-                         */
-                        description?: string | null;
-                        /** @description List of genres associated with the media item. */
-                        genres: string[];
-                        /**
-                         * @description International Standard Book Number (ISBN).
-                         *     Typically used for books.
-                         * @example 1975303121
-                         */
-                        isbn?: string | null;
-                        /**
-                         * @description Language of the media content.
-                         * @example English
-                         */
-                        language?: string | null;
-                        /**
-                         * Format: int32
-                         * @description Provider id of the media item.
-                         * @example 41825371
-                         */
-                        provider_id: number;
-                        /**
-                         * Format: date
-                         * @description Date the media was published.
-                         * @example 2019-03-26
-                         */
-                        published?: string | null;
-                        /**
-                         * @description Name of the publisher or publishing organization.
-                         * @example Yen On
-                         */
-                        publisher?: string | null;
-                        /**
-                         * @description Title of the media item.
-                         * @example 86—EIGHTY-SIX, Vol. 1
-                         */
-                        title: string;
-                    };
-                };
-            };
-            /** @description Invalid query parameters */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    search_books: {
-        parameters: {
-            query: {
-                /** @description The name of the author to search for. */
-                author: string;
-                /** @description The title of the book to search for. */
-                title: string;
                 /**
                  * @description The provider to use for the search.
                  *     Defaults to "goodreads" if not provided in the query.
