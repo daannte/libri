@@ -169,7 +169,13 @@
 				</Dialog>
 
 				{#if metadataSearch}
-					<Button size="sm" onclick={saveMetadata} class="ml-auto">Save Changes</Button>
+					<div class="ml-auto flex items-center gap-2">
+						<Button size="sm" variant="ghost" onclick={() => (metadataSearch = undefined)}>
+							Cancel
+						</Button>
+
+						<Button size="sm" onclick={saveMetadata}>Apply Metadata</Button>
+					</div>
 				{/if}
 			</div>
 
