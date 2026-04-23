@@ -5,7 +5,7 @@ use shiori_api_types::EncodableMetadataSearch;
 use crate::provider::{MetadataProvider, MetadataResult};
 use crate::{MetadataError, goodreads::parsing::fetch_doc};
 
-pub async fn search_id(book: &str) -> MetadataResult<EncodableMetadataSearch> {
+pub async fn fetch(book: String) -> MetadataResult<EncodableMetadataSearch> {
     let url = format!("{}{}", super::GoodreadsProvider::BOOK_URL, book);
 
     let document = match fetch_doc(&url).await {
@@ -105,12 +105,12 @@ pub async fn search_id(book: &str) -> MetadataResult<EncodableMetadataSearch> {
     Ok(metadata)
 }
 
-/// Extract the first key starting with "book:" and return its value
+/// Extract the first key starting with "book:" that has a title.
 fn book_info(apollo_state: &Value) -> Option<&Value> {
     apollo_state
         .as_object()?
         .iter()
-        .find(|(k, _)| k.to_lowercase().starts_with("book:"))
+        .find(|(k, v)| k.to_lowercase().starts_with("book:") && v.get("title").is_some())
         .map(|(_, v)| v)
 }
 

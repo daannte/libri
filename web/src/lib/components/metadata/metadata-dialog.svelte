@@ -10,55 +10,43 @@
 	import Dialog from '../dialog.svelte';
 	import SearchCard from './search-card.svelte';
 
-	type MetadataSearch =
-		operations['get_book_metadata']['responses']['200']['content']['application/json'];
-
 	type BooksMetadata =
 		operations['search_books']['responses']['200']['content']['application/json'];
 
+	type Metadata = BooksMetadata[number];
+
 	interface Props {
-		metadataSearch: MetadataSearch | undefined;
+		metadataSearch: Metadata | undefined;
 		isOpen: boolean;
 		name: string;
+		isbn: string | null | undefined;
 	}
 
 	let client = createClient({ fetch });
 
-	let { metadataSearch = $bindable(), isOpen = $bindable(), name }: Props = $props();
+	let {
+		metadataSearch = $bindable(),
+		isOpen = $bindable(),
+		name,
+		isbn: searchIsbn
+	}: Props = $props();
 
 	let title = $derived(name);
 	let author = $state('');
+	let isbn = $derived(searchIsbn);
 	let books = $state.raw<BooksMetadata>([]);
 
 	let loading = $state(false);
 
-	async function getMetadata(id: number) {
-		if (!id) return;
-
-		loading = true;
-		try {
-			let res = await client.GET('/api/v1/metadata/book', {
-				params: { query: { q: id.toString() } }
-			});
-			if (res.error || !res.data) throw new Error('Failed to get book metadata');
-			metadataSearch = res.data;
-			isOpen = false;
-		} catch (e) {
-			console.error('Failed book search: ', e);
-		} finally {
-			loading = false;
-		}
-	}
-
 	async function search() {
-		if (!(author.trim() || title.trim())) {
+		if (!(author.trim() || title.trim() || isbn?.trim())) {
 			return;
 		}
 
 		loading = true;
 		try {
 			let res = await client.GET('/api/v1/metadata/search', {
-				params: { query: { title, author } }
+				params: { query: { q: isbn ? isbn : `${author} ${title}` } }
 			});
 			if (res.error || !res.data) throw new Error('Failed to get books');
 			books = res.data;
@@ -73,6 +61,7 @@
 <Dialog
 	bind:isOpen
 	title="Fetch Metadata"
+	description="If an ISBN is provided, it will be used instead of author and title."
 	onClose={() => (isOpen = false)}
 	triggerVariant="outline"
 	triggerSize="icon"
@@ -84,38 +73,47 @@
 	{/snippet}
 
 	{#snippet children()}
-		<div class="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
-			<div>
-				<Label for="author" class="sr-only">Author</Label>
+		<div class="grid gap-3 sm:grid-cols-3 sm:items-end">
+			<div class="space-y-1">
+				<Label for="author" class="text-xs text-muted-foreground">Author</Label>
 				<Input
 					class="text-sm md:text-base"
 					id="author"
 					bind:value={author}
-					placeholder="Enter Author Name"
+					placeholder="Asato Asato"
 				/>
 			</div>
 
 			<div>
-				<Label for="title" class="sr-only">Book Title</Label>
-				<Input
-					class="text-sm md:text-base"
-					id="title"
-					bind:value={title}
-					placeholder="Enter Book Title"
-				/>
+				<Label for="title" class="text-xs text-muted-foreground">Title</Label>
+				<Input id="title" bind:value={title} placeholder="Eighty Six" />
 			</div>
-			<Button size="icon" class="w-full sm:w-8" onclick={search} disabled={loading}>
-				{#if loading}
-					<LoaderCircle class="animate-spin" />
-				{:else}
-					<Search />
-				{/if}
-			</Button>
+			<div>
+				<Label for="isbn" class="text-xs text-muted-foreground">ISBN</Label>
+				<Input id="isbn" bind:value={isbn} placeholder="9781975303129" />
+			</div>
+			<div class="flex justify-end sm:col-span-3">
+				<Button class="w-full gap-2 sm:w-auto" onclick={search} disabled={loading}>
+					{#if loading}
+						<LoaderCircle class="animate-spin" />
+						Searching...
+					{:else}
+						<Search />
+						Search
+					{/if}
+				</Button>
+			</div>
 		</div>
 		{#if books.length}
 			<div class="mt-6 grid gap-4 overflow-y-auto sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 				{#each books as book (book.provider_id)}
-					<SearchCard {book} onclick={getMetadata} />
+					<SearchCard
+						{book}
+						onclick={() => {
+							metadataSearch = book;
+							isOpen = false;
+						}}
+					/>
 				{/each}
 			</div>
 		{/if}
