@@ -20,13 +20,10 @@ pub fn mount() -> OpenApiRouter<AppState> {
 
 #[derive(Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
-struct ListQueryParams {
+struct Params {
     /// A search query string.
     #[serde(rename = "q")]
-    q_string: Option<String>,
-
-    /// Provider id
-    id: Option<String>,
+    q_string: String,
 
     /// The provider to use for the search.
     /// Defaults to "goodreads" if not provided in the query.
@@ -38,7 +35,7 @@ struct ListQueryParams {
 #[utoipa::path(
     get,
     path = "/metadata/search",
-    params(ListQueryParams),
+    params(Params),
     tag = tags::METADATA,
     security(
         ("cookie" = []),
@@ -51,19 +48,10 @@ struct ListQueryParams {
     )
 )]
 async fn search_books(
-    Query(params): Query<ListQueryParams>,
+    Query(params): Query<Params>,
 ) -> AppResult<Json<Vec<EncodableMetadataSearch>>> {
     let books = match params.provider.as_str() {
-        "goodreads" => {
-            if let Some(id) = params.id {
-                let book = GoodreadsProvider::fetch_book(id).await?;
-                vec![book]
-            } else if let Some(q) = params.q_string {
-                GoodreadsProvider::search_books(q).await?
-            } else {
-                return Err(bad_request("Missing query"));
-            }
-        }
+        "goodreads" => GoodreadsProvider::search_books(params.q_string).await?,
         _ => return Err(bad_request("Unknown provider")),
     };
     Ok(Json(books))
