@@ -68,10 +68,10 @@ enum AuthSource {
 }
 
 fn extract_auth_source(req: &Request) -> Option<AuthSource> {
-    if let Some(auth_header) = req.headers().get(header::AUTHORIZATION) {
-        if let Ok(value) = auth_header.to_str() {
-            return Some(AuthSource::Header(value.to_string()));
-        }
+    if let Some(auth_header) = req.headers().get(header::AUTHORIZATION)
+        && let Ok(value) = auth_header.to_str()
+    {
+        return Some(AuthSource::Header(value.to_string()));
     }
 
     let jar = CookieJar::from_headers(req.headers());

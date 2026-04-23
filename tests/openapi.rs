@@ -1,4 +1,7 @@
+use std::sync::Arc;
+
 use shiori::BaseOpenApi;
+use shiori_core::ShioriCore;
 
 #[test]
 fn test_open_api_snapshot() {
