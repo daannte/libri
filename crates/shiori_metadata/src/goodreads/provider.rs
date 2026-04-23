@@ -16,8 +16,14 @@ impl MetadataProvider for GoodreadsProvider {
     const SEARCH_URL: &str = "https://www.goodreads.com/search?search_type=books&q=";
 
     async fn search_books(q: String) -> MetadataResult<Vec<EncodableMetadataSearch>> {
-        if is_isbn(&q) {
-            let id = Self::isbn_to_id(&q).await?;
+        let q = q.trim();
+
+        if q.is_empty() {
+            return Ok(vec![]);
+        }
+
+        if is_isbn(q) {
+            let id = Self::isbn_to_id(q).await?;
             let book = Self::fetch_book(id).await?;
             return Ok(vec![book]);
         }
@@ -25,16 +31,12 @@ impl MetadataProvider for GoodreadsProvider {
         let query = form_urlencoded::byte_serialize(q.as_bytes()).collect();
         let ids = search::books(query).await?;
 
-        let results = stream::iter(ids)
-            .map(|id| async move { Self::fetch_book(id).await })
+        let books = stream::iter(ids)
+            .map(Self::fetch_book)
             .buffer_unordered(5)
+            .filter_map(|res| async { res.ok() })
             .collect::<Vec<_>>()
             .await;
-
-        let books = results
-            .into_iter()
-            .filter_map(Result::ok)
-            .collect::<Vec<_>>();
 
         Ok(books)
     }
@@ -49,14 +51,13 @@ impl GoodreadsProvider {
         let url = format!("{}{}", Self::SEARCH_URL, isbn);
 
         let res = HTTP_CLIENT.get(&url).send().await?;
-
         let path = res.url().path();
 
         let id = path
             .split('/')
             .nth(3)
             .and_then(|s| s.split('-').next())
-            .ok_or(MetadataError::Other("Not Found".to_string()))?;
+            .ok_or_else(|| MetadataError::Other("Not Found".to_string()))?;
 
         Ok(id.to_string())
     }
