@@ -1,12 +1,11 @@
-use std::{rc::Rc, sync::Arc};
+use std::{env, path::PathBuf, rc::Rc, sync::Arc};
 
 use diesel_async::AsyncPgConnection;
-use shiori_core::{App, ShioriCore};
-use shiori_database::models::NewUser;
+use shiori_core::{App, db};
+use shiori_database::models::{NewLibrary, NewUser};
 
 use crate::{
     mock_users::{MockAnonymousUser, MockJwtUser},
-    test_app,
     test_db::TestDatabase,
 };
 
@@ -21,49 +20,16 @@ struct TestAppInner {
 pub struct TestApp(Rc<TestAppInner>);
 
 impl TestApp {
-    /// Obtain a reference to the inner `App` value
-    pub fn as_inner(&self) -> &App {
-        &self.0.app
-    }
-
-    /// Obtain a reference to the axum Router
-    pub fn router(&self) -> &axum::Router {
-        &self.0.router
-    }
-
-    /// Obtain an async database connection from the primary database pool.
-    pub async fn db_conn(&self) -> AsyncPgConnection {
-        self.0.test_database.async_connect().await
-    }
-
-    /// Create a new use in the database
-    /// This method updates the database directly
-    pub async fn db_new_user(&self, username: &str) -> MockJwtUser {
-        let conn = self.db_conn().await;
-
-        let new_user = NewUser {
-            username,
-            hashed_password: "supercoolpass",
-            is_server_owner: false,
-        };
-
-        let user = new_user.insert(&conn).await.unwrap();
-
-        MockJwtUser::new(self.clone(), user)
-    }
-}
-
-pub struct TestAppBuilder;
-
-impl TestAppBuilder {
-    /// Create a `TestApp` with an empty database
-    pub async fn empty(mut self) -> (TestApp, MockAnonymousUser) {
-        // Run each test inside a fresh database schema, deleted at the end of the test,
-        // The schema will be cleared up once the app is dropped.
+    pub async fn init_empty() -> (TestApp, MockAnonymousUser) {
         let test_database = TestDatabase::new();
 
-        let core = ShioriCore::new();
-        let app = Arc::new(core.get_app());
+        let app = Arc::new(App {
+            pool: Arc::new(db::create_pool(test_database.url())),
+            base_path: PathBuf::from(
+                env::var("APP_BASE_DIR").unwrap_or_else(|_| "/data".to_string()),
+            ),
+        });
+
         let router = shiori::build_axum_router(app.clone());
 
         let inner = TestAppInner {
@@ -77,9 +43,39 @@ impl TestAppBuilder {
         (test_app, anon)
     }
 
-    pub async fn with_user(self) -> (TestApp, MockAnonymousUser, MockJwtUser) {
-        let (app, anon) = self.empty().await;
-        let user = app.db_new_user("shinei").await;
-        (app, anon, user)
+    pub async fn init_with_user() -> (TestApp, MockAnonymousUser, MockJwtUser) {
+        let (test_app, anon) = TestApp::init_empty().await;
+        let user = test_app.db_new_user("shinei").await;
+        (test_app, anon, user)
+    }
+
+    pub fn as_inner(&self) -> &App {
+        &self.0.app
+    }
+
+    pub fn router(&self) -> &axum::Router {
+        &self.0.router
+    }
+
+    pub async fn db_conn(&self) -> AsyncPgConnection {
+        self.0.test_database.async_connect().await
+    }
+
+    pub async fn db_new_user(&self, username: &str) -> MockJwtUser {
+        let conn = self.db_conn().await;
+        let new_user = NewUser {
+            username,
+            hashed_password: "supercoolpass",
+            is_server_owner: false,
+        };
+        let user = new_user.insert(&conn).await.unwrap();
+        MockJwtUser::new(self.clone(), user)
+    }
+
+    /// Create empty library
+    pub async fn new_library(&self, name: &str, path: &str) {
+        let conn = self.db_conn().await;
+        let new_library = NewLibrary { name, path };
+        new_library.insert(&conn).await.unwrap();
     }
 }

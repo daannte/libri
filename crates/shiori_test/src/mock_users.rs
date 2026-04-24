@@ -43,6 +43,11 @@ impl MockJwtUser {
     pub fn new(app: TestApp, user: User) -> Self {
         return Self { app, user };
     }
+
+    /// Returns a reference to the database `User` model
+    pub fn as_model(&self) -> &User {
+        &self.user
+    }
 }
 
 impl RequestHelper for MockJwtUser {
@@ -54,8 +59,12 @@ impl RequestHelper for MockJwtUser {
         let tokens = JwtTokenPair::new(self.user.id).unwrap();
 
         let mut request = req(method, path);
-        request.header(header::COOKIE, &tokens.access_token.token);
-        request.header(header::COOKIE, &tokens.refresh_token.token);
+        let cookie_header = format!(
+            "access_token={}; refresh_token={}",
+            tokens.access_token.token, tokens.refresh_token.token
+        );
+
+        request.header(header::COOKIE, &cookie_header);
         request
     }
 

@@ -1,12 +1,11 @@
 use std::sync::Arc;
 
 use shiori::BaseOpenApi;
-use shiori_core::ShioriCore;
+use shiori_test::test_app::TestApp;
 
-#[test]
-fn test_open_api_snapshot() {
-    let core = ShioriCore::new();
-    let app = Arc::new(core.get_app());
-    let (_, newest) = BaseOpenApi::build(app);
+#[tokio::test(flavor = "multi_thread")]
+async fn test_open_api_snapshot() {
+    let (app, _) = TestApp::init_empty().await;
+    let (_, newest) = BaseOpenApi::build(Arc::new(app.as_inner().clone()));
     insta::assert_snapshot!(newest.to_pretty_json().unwrap())
 }

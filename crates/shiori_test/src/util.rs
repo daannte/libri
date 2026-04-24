@@ -3,7 +3,11 @@ use futures_util::FutureExt;
 use http::{Method, Request, header};
 use tower::ServiceExt;
 
-use crate::{mock_request::MockRequest, response::Response, test_app::TestApp};
+use crate::{
+    mock_request::{MockRequest, MockRequestExt},
+    response::Response,
+    test_app::TestApp,
+};
 
 #[allow(async_fn_in_trait)]
 pub trait RequestHelper {

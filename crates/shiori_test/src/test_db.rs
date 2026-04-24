@@ -29,7 +29,9 @@ impl TemplateDatabase {
 
     #[instrument]
     fn new() -> Self {
-        let base_url = Url::parse(&std::env::var("TEST_DATABASE_URL").unwrap()).unwrap();
+        let base_url =
+            Url::parse(&dotenvy::var("TEST_DATABASE_URL").expect("TEST_DATABASE_URL expected"))
+                .unwrap();
 
         let prefix = base_url.path().strip_prefix('/');
         let prefix = prefix.expect("failed to parse database name").to_string();
