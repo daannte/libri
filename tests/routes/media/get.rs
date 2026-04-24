@@ -98,7 +98,7 @@ async fn diff_progress_for_users() {
         completed: false,
         completed_at: None,
     }
-    .upsert(&mut conn)
+    .upsert(&conn)
     .await
     .unwrap();
 
@@ -112,7 +112,7 @@ async fn diff_progress_for_users() {
         completed: true,
         completed_at: Some(Utc::now()),
     }
-    .upsert(&mut conn)
+    .upsert(&conn)
     .await
     .unwrap();
 
