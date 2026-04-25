@@ -5,7 +5,7 @@ use shiori_database::models::{NewMedia, UpdateReadingProgress};
 use shiori_test::{test_app::TestApp, util::RequestHelper};
 
 #[tokio::test(flavor = "multi_thread")]
-async fn returns_media_by_id() {
+async fn get() {
     let (app, _, user) = TestApp::init_with_user().await;
     let mut conn = app.db_conn().await;
 
