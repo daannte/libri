@@ -1,6 +1,7 @@
 use std::{env, path::PathBuf, rc::Rc, sync::Arc};
 
 use diesel_async::AsyncPgConnection;
+use shiori::auth::hash_password;
 use shiori_core::{App, db};
 use shiori_database::models::{NewLibrary, NewUser};
 
@@ -73,7 +74,7 @@ impl TestApp {
         let conn = self.db_conn().await;
         let new_user = NewUser {
             username,
-            hashed_password: "supercoolpass",
+            hashed_password: &hash_password("supercoolpass").unwrap(),
             is_server_owner: false,
         };
         let user = new_user.insert(&conn).await.unwrap();

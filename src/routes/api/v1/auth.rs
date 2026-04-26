@@ -63,7 +63,14 @@ async fn login(
 ) -> AppResult<impl IntoResponse> {
     let mut conn = app.db().await?;
 
-    let user = User::find_by_username(&mut conn, &body.username).await?;
+    let user = User::find_by_username(&mut conn, &body.username)
+        .await
+        .map_err(|e| {
+            if e == diesel::NotFound {
+                return unauthorized("Invalid credentials");
+            }
+            e.into()
+        })?;
 
     // TODO: Maybe lock account after 3 or 5 attempts?
     let valid = verify_password(&user.hashed_password, &body.password);
