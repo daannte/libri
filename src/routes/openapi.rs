@@ -43,7 +43,7 @@ impl BaseOpenApi {
     }
 
     pub fn build(app: AppState) -> (axum::Router<Arc<App>>, utoipa::openapi::OpenApi) {
-        let public = Self::router().merge(api::mount_public());
+        let public = Self::router().merge(api::mount_public(app.clone()));
 
         let private = OpenApiRouter::new()
             .merge(api::mount())

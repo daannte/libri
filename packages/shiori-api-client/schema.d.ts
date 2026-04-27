@@ -761,8 +761,15 @@ export interface operations {
                     };
                 };
             };
-            /** @description Bad request payload */
+            /** @description Bad request body */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Insufficient permissions */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -770,6 +777,13 @@ export interface operations {
             };
             /** @description Username already taken */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid request body */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

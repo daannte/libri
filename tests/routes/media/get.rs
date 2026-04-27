@@ -71,7 +71,7 @@ async fn diff_progress_for_users() {
     let mut conn = app.db_conn().await;
 
     let user_a_model = user_a.as_model();
-    let user_b = app.new_user("user_b").await;
+    let user_b = app.new_user("user_b", false).await;
     let user_b_model = user_b.as_model();
 
     app.new_library("library", "/data/books").await;

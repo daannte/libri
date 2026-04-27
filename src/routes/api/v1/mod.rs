@@ -20,8 +20,8 @@ pub fn mount() -> OpenApiRouter<AppState> {
         .merge(tokens::mount())
 }
 
-pub fn mount_public() -> OpenApiRouter<AppState> {
+pub fn mount_public(app: AppState) -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
-        .merge(auth::mount_public())
+        .merge(auth::mount_public(app))
         .merge(system::mount())
 }

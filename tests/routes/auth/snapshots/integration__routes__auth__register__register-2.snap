@@ -1,5 +1,5 @@
 ---
-source: tests/middleware/auth.rs
+source: tests/routes/auth/register.rs
 expression: response.json()
 ---
 {

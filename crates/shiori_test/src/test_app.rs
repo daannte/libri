@@ -46,13 +46,13 @@ impl TestApp {
 
     pub async fn init_with_user() -> (TestApp, MockAnonymousUser, MockJwtUser) {
         let (test_app, anon) = TestApp::init_empty().await;
-        let user = test_app.new_user("shinei").await;
+        let user = test_app.new_user("shinei", true).await;
         (test_app, anon, user)
     }
 
     pub async fn init_with_token() -> (TestApp, MockAnonymousUser, MockJwtUser, MockTokenUser) {
         let (test_app, anon) = TestApp::init_empty().await;
-        let user = test_app.new_user("shinei").await;
+        let user = test_app.new_user("shinei", true).await;
         let token = user.new_token("test").await;
         (test_app, anon, user, token)
     }
@@ -70,12 +70,12 @@ impl TestApp {
     }
 
     /// Create new user
-    pub async fn new_user(&self, username: &str) -> MockJwtUser {
+    pub async fn new_user(&self, username: &str, is_server_owner: bool) -> MockJwtUser {
         let conn = self.db_conn().await;
         let new_user = NewUser {
             username,
             hashed_password: &hash_password("supercoolpass").unwrap(),
-            is_server_owner: false,
+            is_server_owner,
         };
         let user = new_user.insert(&conn).await.unwrap();
         MockJwtUser::new(self.clone(), user)

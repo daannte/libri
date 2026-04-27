@@ -351,10 +351,16 @@ expression: newest.to_pretty_json().unwrap()
             }
           },
           "400": {
-            "description": "Bad request payload"
+            "description": "Bad request body"
+          },
+          "403": {
+            "description": "Insufficient permissions"
           },
           "409": {
             "description": "Username already taken"
+          },
+          "422": {
+            "description": "Invalid request body"
           },
           "500": {
             "description": "Internal server error"
