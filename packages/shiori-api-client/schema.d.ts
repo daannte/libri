@@ -561,6 +561,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Invalid request body */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Internal server error */
             500: {
                 headers: {
