@@ -1,6 +1,6 @@
 use http::header;
 use shiori_database::{
-    models::{ApiToken, NewApiToken, User},
+    models::{ApiToken, NewApiToken, NewRefreshToken, User},
     token::Token,
 };
 use shiori_jwt::JwtTokenPair;
@@ -36,16 +36,33 @@ impl RequestHelper for MockAnonymousUser {
 pub struct MockJwtUser {
     app: TestApp,
     user: User,
+    tokens: JwtTokenPair,
 }
 
 impl MockJwtUser {
-    pub fn new(app: TestApp, user: User) -> Self {
-        Self { app, user }
+    pub async fn new(app: TestApp, user: User) -> Self {
+        let conn = app.db_conn().await;
+
+        let tokens = JwtTokenPair::new(user.id).unwrap();
+
+        let refresh = NewRefreshToken {
+            jti: &tokens.refresh_token.jti,
+            user_id: user.id,
+            expires_at: tokens.refresh_token.expires_at,
+        };
+
+        refresh.insert(&conn).await.unwrap();
+        Self { app, user, tokens }
     }
 
     /// Returns a reference to the database `User` model
     pub fn as_model(&self) -> &User {
         &self.user
+    }
+
+    /// Returns a reference to the tokens
+    pub fn tokens(&self) -> &JwtTokenPair {
+        &self.tokens
     }
 
     /// Creates a new `MockTokenUser`
@@ -75,12 +92,10 @@ impl MockJwtUser {
 
 impl RequestHelper for MockJwtUser {
     fn request_builder(&self, method: http::Method, path: &str) -> MockRequest {
-        let tokens = JwtTokenPair::new(self.user.id).unwrap();
-
         let mut request = req(method, path);
         let cookie_header = format!(
             "access_token={}; refresh_token={}",
-            tokens.access_token.token, tokens.refresh_token.token
+            self.tokens.access_token.token, self.tokens.refresh_token.token
         );
 
         request.header(header::COOKIE, &cookie_header);

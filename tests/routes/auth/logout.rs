@@ -11,6 +11,7 @@ async fn logout() {
 
     let response = user.post::<()>("/api/v1/auth/logout", "{}").await;
 
+    assert_snapshot!(response.status(), @"204 No Content");
     assert!(response.body().is_empty());
 
     let headers = response.headers();
@@ -54,12 +55,9 @@ async fn invalid_access_token() {
     let response = user.run::<()>(request).await;
 
     assert_snapshot!(response.status(), @"401 Unauthorized");
-    assert_json_snapshot!(response.json(), @r#"
-    {
-      "error": "Invalid access token"
-    }
-    "#);
+    assert_json_snapshot!(response.text(), @r#""{\"error\":\"Invalid access token\"}""#);
 }
+
 #[tokio::test(flavor = "multi_thread")]
 async fn no_cookies() {
     let (_, _, user) = TestApp::init_with_user().await;
@@ -73,9 +71,5 @@ async fn no_cookies() {
     let response = user.run::<()>(request).await;
 
     assert_snapshot!(response.status(), @"401 Unauthorized");
-    assert_json_snapshot!(response.json(), @r#"
-    {
-      "error": "Unauthorized"
-    }
-    "#);
+    assert_json_snapshot!(response.text(), @r#""{\"error\":\"Unauthorized\"}""#);
 }

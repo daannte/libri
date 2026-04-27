@@ -184,7 +184,7 @@ async fn refresh_token(
     let mut conn = app.db().await?;
     let cookie = jar
         .get("refresh_token")
-        .ok_or_else(|| bad_request("missing refresh token"))?;
+        .ok_or_else(|| unauthorized("invalid refresh token"))?;
 
     let (user_id_str, jti) =
         RefreshToken::decode(cookie.value()).map_err(|_| unauthorized("invalid refresh token"))?;
@@ -193,7 +193,12 @@ async fn refresh_token(
         .parse::<i32>()
         .map_err(|_| unauthorized("invalid refresh token"))?;
 
-    let token = RefreshModel::find(&mut conn, &jti).await?;
+    let token = RefreshModel::find(&mut conn, &jti).await.map_err(|e| {
+        if e == diesel::NotFound {
+            return unauthorized("invalid refresh token");
+        }
+        e.into()
+    })?;
 
     if token.revoked_at.is_some() || token.user_id != user_id {
         return Err(unauthorized("invalid refresh token"));

@@ -78,7 +78,7 @@ impl TestApp {
             is_server_owner,
         };
         let user = new_user.insert(&conn).await.unwrap();
-        MockJwtUser::new(self.clone(), user)
+        MockJwtUser::new(self.clone(), user).await
     }
 
     /// Create empty library
