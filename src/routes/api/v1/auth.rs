@@ -53,6 +53,7 @@ pub struct AuthRequest {
             )
         ),
         (status = 401, description = "Unauthorized"),
+        (status = 422, description = "Invalid request body"),
         (status = 500, description = "Internal server error")
     )
 )]

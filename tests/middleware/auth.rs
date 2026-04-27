@@ -1,3 +1,7 @@
+use axum::{
+    body::Bytes,
+    http::{self, Method, Request},
+};
 use diesel::ExpressionMethods;
 use diesel_async::RunQueryDsl;
 use insta::{assert_json_snapshot, assert_snapshot};
@@ -22,6 +26,27 @@ async fn authorized_jwt() {
     assert_json_snapshot!(response.json(), {
         ".created_at" => "[datetime]"
     });
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn invalid_access_jwt() {
+    let (_, _, user) = TestApp::init_with_user().await;
+
+    let request = Request::builder()
+        .method(Method::POST)
+        .uri("/api/v1/auth/logout")
+        .header(http::header::COOKIE, "access_token=fake.jwt.token")
+        .body(Bytes::new())
+        .unwrap();
+
+    let response = user.run::<()>(request).await;
+
+    assert_snapshot!(response.status(), @"401 Unauthorized");
+    assert_json_snapshot!(response.json(), @r#"
+    {
+      "error": "Invalid access token"
+    }
+    "#);
 }
 
 #[tokio::test(flavor = "multi_thread")]

@@ -110,6 +110,9 @@ expression: newest.to_pretty_json().unwrap()
           "401": {
             "description": "Unauthorized"
           },
+          "422": {
+            "description": "Invalid request body"
+          },
           "500": {
             "description": "Internal server error"
           }
