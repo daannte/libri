@@ -1,6 +1,6 @@
 ---
 source: tests/routes/tokens/post.rs
-expression: response.json()
+expression: json
 ---
 {
   "created_at": "[datetime]",
