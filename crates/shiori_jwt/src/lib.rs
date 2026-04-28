@@ -24,14 +24,7 @@ static ACCESS_TOKEN_SECRET: Lazy<String> = Lazy::new(generate_secret);
 static REFRESH_TOKEN_SECRET: Lazy<String> = Lazy::new(generate_secret);
 
 #[derive(Debug, Serialize, Deserialize)]
-struct AccessTokenClaims {
-    iat: i64,
-    exp: i64,
-    sub: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct RefreshTokenClaims {
+struct TokenClaims {
     iat: i64,
     exp: i64,
     sub: String,
@@ -70,11 +63,13 @@ impl AccessToken {
     /// Creates a signed JWT access token valid for 15 minutes.
     pub(crate) fn new(user_id: i32) -> Result<AccessToken, jsonwebtoken::errors::Error> {
         let times = JwtTimes::new(Duration::minutes(15));
+        let jti = Uuid::new_v4().to_string();
 
-        let claims = AccessTokenClaims {
+        let claims = TokenClaims {
             iat: times.iat,
             exp: times.exp,
             sub: user_id.to_string(),
+            jti,
         };
 
         let token = encode(
@@ -91,7 +86,7 @@ impl AccessToken {
 
     /// Decode a signed JWT access token and return the user ID.
     pub fn decode(token: &str) -> Result<String, jsonwebtoken::errors::Error> {
-        let data = decode::<AccessTokenClaims>(
+        let data = decode::<TokenClaims>(
             &token,
             &DecodingKey::from_secret(ACCESS_TOKEN_SECRET.as_bytes()),
             &Validation::default(),
@@ -128,7 +123,7 @@ impl RefreshToken {
         let times = JwtTimes::new(Duration::days(7));
         let jti = Uuid::new_v4().to_string();
 
-        let claims = RefreshTokenClaims {
+        let claims = TokenClaims {
             iat: times.iat,
             exp: times.exp,
             sub: user_id.to_string(),
@@ -150,7 +145,7 @@ impl RefreshToken {
 
     /// Decode a signed JWT refresh token and return the user ID and jti.
     pub fn decode(token: &str) -> Result<(String, String), jsonwebtoken::errors::Error> {
-        let data = decode::<RefreshTokenClaims>(
+        let data = decode::<TokenClaims>(
             &token,
             &DecodingKey::from_secret(REFRESH_TOKEN_SECRET.as_bytes()),
             &Validation::default(),

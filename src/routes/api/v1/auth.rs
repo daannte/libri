@@ -1,18 +1,21 @@
-use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
+use axum::{Json, extract::State, http::StatusCode, middleware, response::IntoResponse};
 use axum_extra::extract::CookieJar;
 use serde::Deserialize;
 use shiori_api_types::EncodableUser;
 use shiori_database::models::RefreshToken as RefreshModel;
 use shiori_jwt::{AccessToken, JwtTokenPair, RefreshToken};
-use utoipa_axum::{router::OpenApiRouter, routes};
+use utoipa_axum::{
+    router::{OpenApiRouter, UtoipaMethodRouterExt},
+    routes,
+};
 
 use shiori_database::models::{NewRefreshToken, NewUser, User};
 
 use crate::{
     auth::{hash_password, verify_password},
     config::state::AppState,
-    errors::{AppResult, bad_request, server_error, unauthorized},
-    middleware::auth::AuthUser,
+    errors::{AppResult, bad_request, custom, server_error, unauthorized},
+    middleware::auth::{AuthUser, MaybeAuth, optional_auth_middleware},
     routes::openapi::tags,
 };
 
@@ -22,10 +25,13 @@ pub fn mount() -> OpenApiRouter<AppState> {
         .routes(routes!(me))
 }
 
-pub fn mount_public() -> OpenApiRouter<AppState> {
+pub fn mount_public(app: AppState) -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(login))
-        .routes(routes!(register))
+        .routes(routes!(register).layer(middleware::from_fn_with_state(
+            app,
+            optional_auth_middleware,
+        )))
         .routes(routes!(refresh_token))
 }
 
@@ -53,6 +59,7 @@ pub struct AuthRequest {
             )
         ),
         (status = 401, description = "Unauthorized"),
+        (status = 422, description = "Invalid request body"),
         (status = 500, description = "Internal server error")
     )
 )]
@@ -63,7 +70,14 @@ async fn login(
 ) -> AppResult<impl IntoResponse> {
     let mut conn = app.db().await?;
 
-    let user = User::find_by_username(&mut conn, &body.username).await?;
+    let user = User::find_by_username(&mut conn, &body.username)
+        .await
+        .map_err(|e| {
+            if e == diesel::NotFound {
+                return unauthorized("Invalid credentials");
+            }
+            e.into()
+        })?;
 
     // TODO: Maybe lock account after 3 or 5 attempts?
     let valid = verify_password(&user.hashed_password, &body.password);
@@ -98,19 +112,30 @@ async fn login(
     request_body = inline(AuthRequest),
     responses(
         (status = 200, description = "Successfully registered", body = inline(EncodableUser)),
-        (status = 400, description = "Bad request payload"),
+        (status = 400, description = "Bad request body"),
+        (status = 403, description = "Insufficient permissions"),
+        (status = 422, description = "Invalid request body"),
         (status = 409, description = "Username already taken"),
         (status = 500, description = "Internal server error")
     )
 )]
 async fn register(
     State(app): State<AppState>,
+    MaybeAuth(auth): MaybeAuth,
     Json(body): Json<AuthRequest>,
 ) -> AppResult<Json<EncodableUser>> {
     let mut conn = app.db().await?;
 
     let has_users = User::count(&mut conn).await? > 0;
     let is_server_owner = !has_users;
+
+    if has_users {
+        let auth = auth.ok_or_else(|| custom(StatusCode::FORBIDDEN, "Insufficient Permissions"))?;
+
+        if !auth.user().is_server_owner {
+            return Err(custom(StatusCode::FORBIDDEN, "Insufficient Permissions"));
+        }
+    }
 
     if body.password.len() < 8 {
         return Err(bad_request("Password must be at least 8 characters"));
@@ -124,7 +149,13 @@ async fn register(
         is_server_owner,
     };
 
-    let user = new_user.insert(&conn).await?;
+    let user = new_user.insert(&conn).await.map_err(|e| match e {
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UniqueViolation,
+            _,
+        ) => custom(StatusCode::CONFLICT, "Username already taken"),
+        _ => e.into(),
+    })?;
 
     Ok(Json(user.into()))
 }
@@ -153,7 +184,7 @@ async fn refresh_token(
     let mut conn = app.db().await?;
     let cookie = jar
         .get("refresh_token")
-        .ok_or_else(|| bad_request("missing refresh token"))?;
+        .ok_or_else(|| unauthorized("invalid refresh token"))?;
 
     let (user_id_str, jti) =
         RefreshToken::decode(cookie.value()).map_err(|_| unauthorized("invalid refresh token"))?;
@@ -162,7 +193,12 @@ async fn refresh_token(
         .parse::<i32>()
         .map_err(|_| unauthorized("invalid refresh token"))?;
 
-    let token = RefreshModel::find(&mut conn, &jti).await?;
+    let token = RefreshModel::find(&mut conn, &jti).await.map_err(|e| {
+        if e == diesel::NotFound {
+            return unauthorized("invalid refresh token");
+        }
+        e.into()
+    })?;
 
     if token.revoked_at.is_some() || token.user_id != user_id {
         return Err(unauthorized("invalid refresh token"));

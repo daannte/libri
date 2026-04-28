@@ -561,6 +561,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Invalid request body */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Internal server error */
             500: {
                 headers: {
@@ -754,8 +761,15 @@ export interface operations {
                     };
                 };
             };
-            /** @description Bad request payload */
+            /** @description Bad request body */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Insufficient permissions */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -763,6 +777,13 @@ export interface operations {
             };
             /** @description Username already taken */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid request body */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1153,7 +1174,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successfully delete media */
+            /** @description Successfully deleted media */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -1499,8 +1520,22 @@ export interface operations {
                     };
                 };
             };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Unauthorized */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid request body */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

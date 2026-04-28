@@ -1,0 +1,10 @@
+---
+source: tests/routes/auth/refresh_token.rs
+expression: response.json()
+---
+{
+  "created_at": "[datetime]",
+  "id": 1,
+  "is_server_owner": true,
+  "username": "shinei"
+}

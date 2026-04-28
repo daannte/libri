@@ -1,6 +1,7 @@
 use axum::{
     Json,
     extract::{Path, State},
+    response::NoContent,
 };
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
@@ -46,7 +47,9 @@ pub struct TokenRequest {
     request_body = inline(TokenRequest),
     responses(
         (status = 200, description = "Successfully created api token", body = inline(EncodableApiTokenWithToken)),
+        (status = 400, description = "Bad Request"),
         (status = 401, description = "Unauthorized"),
+        (status = 422, description = "Invalid request body"),
         (status = 500, description = "Internal server error")
     )
 )]
@@ -57,6 +60,12 @@ async fn create_token(
 ) -> AppResult<Json<EncodableApiTokenWithToken>> {
     if body.name.is_empty() {
         return Err(bad_request("name must have a value"));
+    }
+
+    if let Some(expires_at) = body.expires_at
+        && expires_at < Utc::now()
+    {
+        return Err(bad_request("token expiration cannot be in the past"));
     }
 
     if auth.is_token() {
@@ -141,7 +150,7 @@ async fn delete_token(
     State(app): State<AppState>,
     AuthUser(auth): AuthUser,
     Path(key_id): Path<String>,
-) -> AppResult<()> {
+) -> AppResult<NoContent> {
     let mut conn = app.db().await?;
 
     let num_deleted = ApiToken::delete(&mut conn, key_id, auth.user()).await?;
@@ -150,5 +159,5 @@ async fn delete_token(
         return Err(not_found());
     }
 
-    Ok(())
+    Ok(NoContent)
 }

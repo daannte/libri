@@ -110,6 +110,9 @@ expression: newest.to_pretty_json().unwrap()
           "401": {
             "description": "Unauthorized"
           },
+          "422": {
+            "description": "Invalid request body"
+          },
           "500": {
             "description": "Internal server error"
           }
@@ -348,10 +351,16 @@ expression: newest.to_pretty_json().unwrap()
             }
           },
           "400": {
-            "description": "Bad request payload"
+            "description": "Bad request body"
+          },
+          "403": {
+            "description": "Insufficient permissions"
           },
           "409": {
             "description": "Username already taken"
+          },
+          "422": {
+            "description": "Invalid request body"
           },
           "500": {
             "description": "Internal server error"
@@ -947,7 +956,7 @@ expression: newest.to_pretty_json().unwrap()
         ],
         "responses": {
           "204": {
-            "description": "Successfully delete media"
+            "description": "Successfully deleted media"
           },
           "404": {
             "description": "Media not found"
@@ -1489,8 +1498,14 @@ expression: newest.to_pretty_json().unwrap()
               }
             }
           },
+          "400": {
+            "description": "Bad Request"
+          },
           "401": {
             "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Invalid request body"
           },
           "500": {
             "description": "Internal server error"

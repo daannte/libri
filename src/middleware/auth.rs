@@ -61,6 +61,20 @@ pub async fn url_auth_middleware(
     Ok(next.run(req).await)
 }
 
+pub async fn optional_auth_middleware(
+    State(app): State<AppState>,
+    mut req: Request,
+    next: Next,
+) -> AppResult<Response> {
+    if let Some(source) = extract_auth_source(&req)
+        && let Ok(auth) = resolve_auth(&app, source).await
+    {
+        req.extensions_mut().insert(auth);
+    }
+
+    Ok(next.run(req).await)
+}
+
 enum AuthSource {
     Header(String),
     Cookie(String),
@@ -140,6 +154,20 @@ impl FromRequestParts<AppState> for AuthUser {
             .ok_or_else(|| unauthorized("Unauthorized"))?;
 
         Ok(AuthUser(auth))
+    }
+}
+
+pub struct MaybeAuth(pub Option<Auth>);
+
+impl FromRequestParts<AppState> for MaybeAuth {
+    type Rejection = std::convert::Infallible;
+
+    async fn from_request_parts(
+        parts: &mut axum::http::request::Parts,
+        _state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
+        let auth = parts.extensions.get::<Auth>().cloned();
+        Ok(MaybeAuth(auth))
     }
 }
 
