@@ -1,5 +1,6 @@
 use chrono::Utc;
 use http::header;
+use secrecy::ExposeSecret;
 use shiori_database::{
     models::{ApiToken, NewApiToken, NewRefreshToken, User},
     token::Token,
@@ -80,7 +81,7 @@ impl MockJwtUser {
             user_id: self.user.id,
             name,
             key_id: plaintoken.key_id(),
-            token_hash: plaintoken.hashed().hash,
+            token_hash: plaintoken.hashed().hash.expose_secret().to_owned(),
             expires_at,
             last_used_at: None,
         };
