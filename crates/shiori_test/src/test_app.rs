@@ -26,9 +26,7 @@ impl TestApp {
 
         let app = Arc::new(App {
             pool: Arc::new(db::create_pool(test_database.url())),
-            base_path: PathBuf::from(
-                env::var("APP_BASE_DIR").unwrap_or_else(|_| "/data".to_string()),
-            ),
+            base_path: PathBuf::from(env::var("DEV_DIR").unwrap_or_else(|_| "/data".to_string())),
         });
 
         let router = shiori::build_axum_router(app.clone());

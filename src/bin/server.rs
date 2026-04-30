@@ -12,7 +12,7 @@ async fn main() {
         pool: Arc::new(db::create_pool(
             &dotenvy::var("DATABASE_URL").expect("DATABASE_URL must be set"),
         )),
-        base_path: PathBuf::from(env::var("APP_BASE_DIR").unwrap_or_else(|_| "/data".to_string())),
+        base_path: PathBuf::from(env::var("DEV_DIR").unwrap_or_else(|_| "/data".to_string())),
     });
 
     let axum_router = build_axum_router(app);

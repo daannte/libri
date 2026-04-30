@@ -4,6 +4,7 @@ use axum::{
     response::NoContent,
 };
 use chrono::{DateTime, Utc};
+use secrecy::ExposeSecret;
 use serde::Deserialize;
 use shiori_api_types::{EncodableApiToken, EncodableApiTokenWithToken};
 use shiori_database::{
@@ -82,7 +83,7 @@ async fn create_token(
         user_id: auth.user().id,
         name: &body.name,
         key_id: token.key_id(),
-        token_hash: token.hashed().hash,
+        token_hash: token.hashed().hash.expose_secret().to_owned(),
         expires_at: body.expires_at,
         last_used_at: None,
     };

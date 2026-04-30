@@ -1,4 +1,5 @@
 use rand::distr::{Alphanumeric, SampleString};
+use secrecy::{ExposeSecret, SecretSlice, SecretString};
 use sha2::{Digest, Sha256};
 
 const TOKEN_LENGTH: usize = 32;
@@ -11,7 +12,7 @@ pub struct InvalidTokenError;
 
 pub struct HashedToken {
     pub key_id: String,
-    pub hash: Vec<u8>,
+    pub hash: SecretSlice<u8>,
 }
 
 impl HashedToken {
@@ -36,23 +37,25 @@ impl HashedToken {
 
         Ok(Self {
             key_id: key_id.to_string(),
-            hash: Self::hash(secret),
+            hash: Self::hash(secret).into(),
         })
     }
 }
 
 pub struct Token {
     key_id: String,
-    secret: String,
-    full: String,
+    secret: SecretString,
+    full: SecretString,
 }
 
 impl Default for Token {
     fn default() -> Self {
         let key_id = Alphanumeric.sample_string(&mut rand::rng(), KEY_ID_LENGTH);
-        let secret = Alphanumeric.sample_string(&mut rand::rng(), TOKEN_LENGTH);
+        let secret: SecretString = Alphanumeric
+            .sample_string(&mut rand::rng(), TOKEN_LENGTH)
+            .into();
 
-        let full = format!("{}_{}_{}", TOKEN_PREFIX, key_id, secret);
+        let full = format!("{}_{}_{}", TOKEN_PREFIX, key_id, secret.expose_secret()).into();
 
         Self {
             key_id,
@@ -68,17 +71,17 @@ impl Token {
     }
 
     pub fn secret(&self) -> &str {
-        &self.secret
+        self.secret.expose_secret()
     }
 
     pub fn token(&self) -> &str {
-        &self.full
+        self.full.expose_secret()
     }
 
     pub fn hashed(&self) -> HashedToken {
         HashedToken {
             key_id: self.key_id.clone(),
-            hash: HashedToken::hash(&self.secret),
+            hash: HashedToken::hash(&self.secret.expose_secret()).into(),
         }
     }
 }
@@ -140,6 +143,6 @@ mod tests {
         let parsed = HashedToken::parse(token.token()).unwrap();
         let expected = HashedToken::hash(token.secret());
 
-        assert_eq!(parsed.hash, expected);
+        assert_eq!(parsed.hash.expose_secret(), expected);
     }
 }

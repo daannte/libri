@@ -5,6 +5,7 @@ use axum::{
     response::Response,
 };
 use axum_extra::extract::CookieJar;
+use secrecy::ExposeSecret;
 use shiori_database::{
     models::{ApiToken, User},
     token::HashedToken,
@@ -107,7 +108,7 @@ async fn resolve_auth(app: &AppState, source: AuthSource) -> AppResult<Auth> {
 
             let token = HashedToken::parse(token).map_err(|_| unauthorized("Invalid API token"))?;
 
-            let user_id = update_last_used_at(app, &token.hash).await?;
+            let user_id = update_last_used_at(app, token.hash.expose_secret()).await?;
             let user = fetch_user(app, user_id).await?;
 
             Ok(Auth::Token(user))
@@ -130,7 +131,7 @@ async fn resolve_auth(app: &AppState, source: AuthSource) -> AppResult<Auth> {
             let token =
                 HashedToken::parse(&token_str).map_err(|_| unauthorized("Invalid API token"))?;
 
-            let user_id = update_last_used_at(app, &token.hash).await?;
+            let user_id = update_last_used_at(app, token.hash.expose_secret()).await?;
             let user = fetch_user(app, user_id).await?;
 
             Ok(Auth::Token(user))
